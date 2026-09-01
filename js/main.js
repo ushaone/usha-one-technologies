@@ -64,7 +64,7 @@ toggle.addEventListener("click",()=>{
   nav.style.display=open?"none":"flex";
   if(!open){
     nav.style.position="absolute";nav.style.top="70px";nav.style.left="12px";nav.style.right="12px";
-    nav.style.flexDirection="column";nav.style.background="white";nav.style.padding="20px";nav.style.borderRadius="12px";
-    nav.style.boxShadow="0 20px 45px rgba(0,0,0,.15)";
+    nav.style.flexDirection="column";nav.style.background="#071426";nav.style.padding="20px";nav.style.borderRadius="12px";
+    nav.style.boxShadow="0 20px 45px rgba(0,0,0,.32)";
   }
 });
