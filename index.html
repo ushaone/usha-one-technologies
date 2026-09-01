@@ -1,339 +1,193 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>USHA ONE Technologies — Build • Automate • Scale</title>
-  <meta name="description" content="USHA ONE Technologies builds, automates and scales digital systems around your business." />
-  <link rel="icon" href="ASSETS/logo/usha-one-icon-transparent.png" />
-  <style>
-    :root{
-      --bg:#020814;
-      --bg2:#07162a;
-      --panel:#0a1830;
-      --gold:#e7a21a;
-      --gold2:#ffbf42;
-      --blue:#2f9df4;
-      --text:#f7f9fc;
-      --muted:#aab7c8;
-      --line:rgba(255,255,255,.09);
-      --max:1220px;
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color:var(--text);
-      background:linear-gradient(180deg,var(--bg),#061225 58%,#08182e 100%);
-      overflow-x:hidden;
-    }
-    a{color:inherit;text-decoration:none}
-    img{max-width:100%;display:block}
-    .wrap{width:min(var(--max),calc(100% - 40px));margin:auto}
-
-    .utility{
-      border-bottom:1px solid var(--line);
-      background:#010611;
-      color:#c9d3df;
-      font-size:12px;
-    }
-    .utility .wrap{
-      min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:20px
-    }
-    .utility strong{color:#f1b53c;letter-spacing:.08em}
-    .utility-right{display:flex;gap:18px;flex-wrap:wrap}
-
-    header{
-      position:sticky;top:0;z-index:50;
-      backdrop-filter:blur(14px);
-      background:rgba(2,8,20,.86);
-      border-bottom:1px solid var(--line);
-    }
-    .nav{
-      min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:28px
-    }
-    .brand{
-      display:flex;align-items:center;gap:12px;min-width:210px
-    }
-    .brand img{height:42px;width:auto;object-fit:contain}
-    .navlinks{display:flex;align-items:center;gap:26px;font-size:13px;font-weight:700;letter-spacing:.03em}
-    .navlinks a{opacity:.88}
-    .navlinks a:hover{color:#f5b735}
-    .cta{
-      display:inline-flex;align-items:center;justify-content:center;
-      min-height:44px;padding:0 20px;border-radius:8px;
-      background:linear-gradient(135deg,var(--gold),#f0a915);
-      color:#07101f;font-weight:900;font-size:13px;
-      box-shadow:0 12px 30px rgba(231,162,26,.18);
-    }
-    .menu-btn{display:none;background:transparent;border:1px solid var(--line);color:white;border-radius:8px;padding:9px 11px}
-
-    .hero{
-      position:relative;min-height:630px;overflow:hidden;
-      background:
-        radial-gradient(circle at 76% 42%,rgba(32,115,198,.22),transparent 28%),
-        radial-gradient(circle at 35% 35%,rgba(231,162,26,.08),transparent 24%),
-        linear-gradient(110deg,#01050d 0%,#020b18 43%,#04162b 100%);
-    }
-    .hero:before,
-    .hero:after{
-      content:"";position:absolute;left:-12%;width:125%;height:2px;z-index:1;border-radius:50%
-    }
-    .hero:before{
-      top:38%;transform:rotate(8deg);
-      background:linear-gradient(90deg,transparent,#d78c10 20%,#ffc449 34%,#278fe4 49%,#7bceff 54%,#e9a11c 69%,#ffbf3a 76%,transparent 97%);
-      box-shadow:0 0 10px rgba(255,187,57,.72),0 0 30px rgba(39,143,228,.22);
-    }
-    .hero:after{
-      top:60%;transform:rotate(-6deg);
-      background:linear-gradient(90deg,transparent,#1d78c4 20%,#35a7ff 38%,#8dd5ff 49%,#efa61f 62%,#ffb62f 72%,#278edb 84%,transparent 98%);
-      box-shadow:0 0 10px rgba(52,162,245,.64),0 0 24px rgba(238,164,31,.22);
-    }
-    .particles{
-      position:absolute;inset:-20%;z-index:0;opacity:.30;transform:rotate(-4deg);
-      background-image:
-        radial-gradient(circle,rgba(255,188,59,.95) 1px,transparent 1.3px),
-        radial-gradient(circle,rgba(49,157,245,.85) 1px,transparent 1.3px);
-      background-size:23px 23px,31px 31px;
-      background-position:0 0,10px 14px;
-      mask-image:radial-gradient(ellipse at 56% 50%,#000 0%,#000 52%,transparent 83%);
-    }
-    .hero-grid{
-      min-height:630px;display:grid;grid-template-columns:.95fr 1.05fr;align-items:center;gap:46px;position:relative;z-index:2
-    }
-    .eyebrow{color:#f4b636;font-weight:800;font-size:13px;letter-spacing:.14em}
-    h1{
-      margin:16px 0 22px;
-      font-size:clamp(52px,6vw,82px);
-      line-height:.98;letter-spacing:-.05em;
-      max-width:680px
-    }
-    h1 .gold{color:#f1ac22}
-    .hero-copy p{max-width:620px;color:#d7dfeb;line-height:1.75;font-size:17px}
-    .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
-    .ghost{
-      min-height:44px;padding:0 20px;border-radius:8px;border:1px solid rgba(255,255,255,.18);
-      display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;background:rgba(255,255,255,.025)
-    }
-    .hero-brand{
-      min-height:430px;display:grid;place-items:center;position:relative
-    }
-    .hero-brand:before{
-      content:"";position:absolute;width:540px;height:300px;border-radius:50%;
-      background:radial-gradient(ellipse,rgba(22,119,210,.18),transparent 70%);filter:blur(14px)
-    }
-    .hero-brand img{
-      width:min(680px,100%);
-      max-height:430px;
-      object-fit:contain;
-      position:relative;
-      z-index:2;
-      filter:drop-shadow(0 28px 50px rgba(0,0,0,.55));
-    }
-
-    .trust{
-      border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-      background:#061123
-    }
-    .trust .wrap{padding:22px 0;display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap}
-    .trust-label{font-size:12px;color:#95a4b6;letter-spacing:.10em;font-weight:800}
-    .trust-items{display:flex;gap:18px;flex-wrap:wrap}
-    .pill{padding:8px 12px;border:1px solid var(--line);border-radius:999px;color:#ced8e5;font-size:12px;background:rgba(255,255,255,.02)}
-
-    section{padding:88px 0}
-    .section-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:34px}
-    .section-kicker{color:#efad2f;font-weight:900;font-size:12px;letter-spacing:.14em}
-    h2{font-size:clamp(34px,4vw,54px);margin:10px 0 0;letter-spacing:-.035em}
-    .section-copy{max-width:520px;color:var(--muted);line-height:1.7}
-
-    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .card{
-      min-height:220px;padding:26px;border:1px solid rgba(231,162,26,.23);border-radius:14px;
-      background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.012));
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.03)
-    }
-    .icon{
-      width:46px;height:46px;border-radius:12px;display:grid;place-items:center;
-      border:1px solid rgba(231,162,26,.28);color:#f2b53a;font-weight:900;margin-bottom:20px
-    }
-    .card h3{margin:0 0 10px;font-size:18px}
-    .card p{margin:0;color:#9fb0c4;line-height:1.65;font-size:14px}
-
-    .feature{
-      display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch
-    }
-    .feature-box{
-      padding:34px;border:1px solid var(--line);border-radius:16px;background:#07162b
-    }
-    .feature-box strong{display:block;color:#f2b337;font-size:13px;letter-spacing:.08em;margin-bottom:10px}
-    .feature-box h3{font-size:30px;margin:0 0 14px}
-    .feature-box p{color:#a7b6c8;line-height:1.7}
-
-    .footer{
-      border-top:1px solid var(--line);background:#010712;padding:34px 0;color:#97a7ba
-    }
-    .footer .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
-    .footer img{height:34px}
-    .footer small{font-size:12px}
-
-    @media (max-width:980px){
-      .navlinks{display:none}
-      .menu-btn{display:block}
-      .hero-grid{grid-template-columns:1fr;gap:10px;padding:70px 0}
-      .hero-copy{text-align:center}
-      .hero-copy p{margin-left:auto;margin-right:auto}
-      .hero-actions{justify-content:center}
-      .hero-brand{min-height:300px}
-      .hero-brand img{max-height:300px}
-      .cards{grid-template-columns:1fr 1fr}
-      .feature{grid-template-columns:1fr}
-    }
-    @media (max-width:640px){
-      .wrap{width:min(var(--max),calc(100% - 24px))}
-      .utility-right{display:none}
-      .utility .wrap{justify-content:center}
-      .nav{min-height:70px}
-      .brand img{height:36px}
-      header .cta{display:none}
-      h1{font-size:48px}
-      .hero,.hero-grid{min-height:auto}
-      .hero-grid{padding:58px 0 46px}
-      .hero-brand{min-height:220px;margin-top:14px}
-      .hero-brand img{max-height:220px}
-      .cards{grid-template-columns:1fr}
-      section{padding:68px 0}
-      .section-head{display:block}
-      .section-copy{margin-top:14px}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>USHA ONE Technologies | Build • Automate • Scale</title>
+<meta name="description" content="USHA ONE Technologies builds practical digital systems, automations, AI solutions, applications and business technology for growing organisations.">
+<link rel="icon" href="ASSETS/usha-one-icon-transparent.png">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="utility">
-    <div class="wrap">
-      <strong>— BUILD • AUTOMATE • SCALE —</strong>
-      <div class="utility-right">
-        <span>+91 8008426363</span>
-        <span>Jagtial, Telangana, India</span>
+<div class="topbar">
+  <div class="container topbar-inner">
+    <span class="tagline">BUILD • AUTOMATE • SCALE</span>
+    <div class="top-contact"><a href="tel:+918008426363">+91 8008426363</a><span>Jagtial, Telangana, India</span></div>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="#home"><img src="ASSETS/usha-one-text-transparent.png" alt="USHA ONE"></a>
+    <button class="menu-toggle" aria-label="Open menu">☰</button>
+    <nav class="nav-links">
+      <a href="#solutions">Solutions</a>
+      <a href="#one-ai">ONE AI</a>
+      <a href="#audit">Technology Audit</a>
+      <a href="#founding10">Founding 10</a>
+      <a href="#about">About</a>
+    </nav>
+    <a class="btn btn-gold desktop-cta" href="#contact">Transform My Business</a>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="home">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-grid-pattern"></div>
+  <div class="container hero-inner">
+    <div class="hero-copy">
+      <div class="eyebrow">USHA ONE TECHNOLOGIES</div>
+      <h1>Technology that makes your business <span>smarter.</span></h1>
+      <p class="hero-lead">We design digital systems around real business problems — then connect, automate and scale them into practical platforms that save time, improve visibility and support growth.</p>
+      <div class="hero-actions">
+        <a class="btn btn-gold" href="#audit">Start Technology Audit</a>
+        <a class="btn btn-outline" href="#solutions">Explore Solutions</a>
       </div>
+      <div class="hero-proof">
+        <div><strong>Build</strong><span>Web, apps & digital systems</span></div>
+        <div><strong>Automate</strong><span>Workflows, CRM & operations</span></div>
+        <div><strong>Scale</strong><span>Data, AI & connected growth</span></div>
+      </div>
+    </div>
+
+    <div class="hero-brand-card">
+      <img src="ASSETS/usha-one-full-logo-transparent.png" alt="USHA ONE Technologies">
+      <div class="hero-card-line"></div>
+      <p>Technology built around your business.</p>
     </div>
   </div>
+</section>
 
-  <header>
-    <div class="wrap nav">
-      <a href="#" class="brand" aria-label="USHA ONE Technologies">
-        <img src="ASSETS/logo/usha-one-text-transparent.png" alt="USHA ONE" />
-      </a>
-      <nav class="navlinks">
-        <a href="#solutions">SOLUTIONS</a>
-        <a href="#industries">INDUSTRIES</a>
-        <a href="#one-ai">ONE AI</a>
-        <a href="#founding10">FOUNDING 10</a>
-        <a href="#audit">TECHNOLOGY AUDIT</a>
-        <a href="#about">ABOUT</a>
-      </nav>
-      <a class="cta" href="#contact">TRANSFORM MY BUSINESS</a>
-      <button class="menu-btn" aria-label="Menu">☰</button>
+<section class="trust-strip">
+  <div class="container trust-grid">
+    <span>BUILT FOR GROWING BUSINESSES</span>
+    <div>Education</div><div>Retail</div><div>Healthcare</div><div>Services</div><div>Manufacturing</div>
+  </div>
+</section>
+
+<section class="section" id="solutions">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="kicker">WHAT WE DO</span><h2>One technology partner. Connected solutions.</h2></div>
+      <p>USHA ONE combines software, automation, AI and business systems into a unified approach — so technology supports operations instead of creating more complexity.</p>
     </div>
-  </header>
+    <div class="solution-grid">
+      <article class="solution-card"><span>01</span><h3>Web & App Development</h3><p>Premium websites, customer portals, internal tools and mobile-ready applications built for speed and usability.</p></article>
+      <article class="solution-card"><span>02</span><h3>CRM & Customer Systems</h3><p>Capture enquiries, manage follow-ups, organise customer information and create consistent sales processes.</p></article>
+      <article class="solution-card"><span>03</span><h3>Business Automation</h3><p>Reduce repetitive work using connected workflows, approvals, reminders, notifications and task automation.</p></article>
+      <article class="solution-card"><span>04</span><h3>AI & Intelligent Solutions</h3><p>Practical AI assistants, knowledge systems and decision-support tools connected to business data and workflows.</p></article>
+      <article class="solution-card"><span>05</span><h3>Cloud & Integrations</h3><p>Connect websites, databases, APIs, payment systems, messaging platforms and operational tools securely.</p></article>
+      <article class="solution-card"><span>06</span><h3>Dashboards & Analytics</h3><p>Turn scattered information into clear operational dashboards, KPIs, alerts and management visibility.</p></article>
+    </div>
+  </div>
+</section>
 
-  <main>
-    <section class="hero">
-      <div class="particles"></div>
-      <div class="wrap hero-grid">
-        <div class="hero-copy">
-          <div class="eyebrow">— USHA ONE TECHNOLOGIES —</div>
-          <h1>Technology<br>built around<br><span class="gold">your business.</span></h1>
-          <p>We build, automate and scale digital solutions designed around real business needs — helping teams work smarter, move faster and grow with confidence.</p>
-          <div class="hero-actions">
-            <a class="cta" href="#contact">TRANSFORM MY BUSINESS</a>
-            <a class="ghost" href="#solutions">EXPLORE SOLUTIONS</a>
-          </div>
-        </div>
-        <div class="hero-brand">
-          <img src="ASSETS/logo/usha-one-full-logo-transparent.png" alt="USHA ONE Technologies" />
-        </div>
-      </div>
-    </section>
-
-    <div class="trust">
-      <div class="wrap">
-        <div class="trust-label">BUILT FOR MODERN GROWING BUSINESSES</div>
-        <div class="trust-items">
-          <span class="pill">Retail</span><span class="pill">Education</span><span class="pill">Healthcare</span>
-          <span class="pill">Professional Services</span><span class="pill">Manufacturing</span><span class="pill">Local Business</span>
-        </div>
+<section class="section alt" id="one-ai">
+  <div class="container split">
+    <div>
+      <span class="kicker">ONE AI</span>
+      <h2>Your business intelligence layer.</h2>
+      <p class="large-copy">ONE AI is designed to help business owners understand what needs attention across customers, leads, tasks, orders, payments, inventory and performance.</p>
+      <div class="ai-question">“What needs my attention today?”</div>
+      <div class="ai-answer">
+        <div><strong>8</strong><span>Leads need follow-up</span></div>
+        <div><strong>3</strong><span>Payments need attention</span></div>
+        <div><strong>2</strong><span>Items running low</span></div>
       </div>
     </div>
-
-    <section id="solutions">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">WHAT WE DO</div>
-            <h2>Smart solutions.<br>Real business impact.</h2>
-          </div>
-          <p class="section-copy">From your public website to internal automation, analytics and AI, we design connected systems that reduce friction and make growth easier to manage.</p>
-        </div>
-
-        <div class="cards">
-          <div class="card"><div class="icon">01</div><h3>Web & App Development</h3><p>Fast, responsive digital experiences built for conversion, service and scale.</p></div>
-          <div class="card"><div class="icon">02</div><h3>Process Automation</h3><p>Replace repetitive manual work with streamlined workflows and connected operations.</p></div>
-          <div class="card"><div class="icon">03</div><h3>AI & Intelligent Solutions</h3><p>Practical AI systems that help teams understand, decide and respond faster.</p></div>
-          <div class="card"><div class="icon">04</div><h3>Cloud & Integrations</h3><p>Connect your tools, data and business systems into one reliable digital foundation.</p></div>
-          <div class="card"><div class="icon">05</div><h3>CRM & Customer Systems</h3><p>Bring enquiries, follow-ups, sales and customer activity into a more manageable flow.</p></div>
-          <div class="card"><div class="icon">06</div><h3>Data & Dashboards</h3><p>Turn scattered business data into clear dashboards, signals and actionable insight.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="one-ai">
-      <div class="wrap feature">
-        <div class="feature-box">
-          <strong>ONE AI</strong>
-          <h3>Your business intelligence layer.</h3>
-          <p>ONE AI is envisioned as the intelligence layer across customers, sales, tasks, orders, payments, inventory and analytics — helping owners see what needs attention and act faster.</p>
-        </div>
-        <div class="feature-box" id="audit">
-          <strong>BUSINESS TECHNOLOGY AUDIT</strong>
-          <h3>Know where your business stands.</h3>
-          <p>A structured technology audit helps identify gaps across digital foundation, customer systems, operations, automation, data and AI readiness.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="founding10">
-      <div class="wrap feature">
-        <div class="feature-box">
-          <strong>USHA ONE — FOUNDING 10</strong>
-          <h3>10 businesses. Real problems. Smarter systems.</h3>
-          <p>A focused program to discover real operational challenges, build practical solutions and convert repeatable improvements into stronger business systems.</p>
-        </div>
-        <div class="feature-box" id="about">
-          <strong>OUR APPROACH</strong>
-          <h3>Build → Automate → Scale</h3>
-          <p>We start with what your business actually needs today, then automate what repeats, connect what is fragmented, and prepare the system for scalable growth.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="contact">
-      <div class="wrap">
-        <div class="feature-box" style="text-align:center;padding:52px 28px">
-          <strong>READY TO MOVE FORWARD?</strong>
-          <h3 style="font-size:clamp(34px,5vw,56px);margin-bottom:14px">Technology built around your business.</h3>
-          <p style="max-width:720px;margin:0 auto 24px">Tell us what you are trying to improve. We will help turn the problem into a practical digital system.</p>
-          <a class="cta" href="tel:+918008426363">CALL +91 8008426363</a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="wrap">
-      <img src="ASSETS/logo/usha-one-text-transparent.png" alt="USHA ONE" />
-      <small>© 2026 USHA ONE Technologies. All rights reserved.</small>
+    <div class="feature-panel">
+      <h3>Designed for useful action — not just chat.</h3>
+      <ul>
+        <li>Business-aware recommendations</li>
+        <li>Role-based permissions</li>
+        <li>Approval for sensitive actions</li>
+        <li>Connected operational data</li>
+        <li>Audit trails and accountability</li>
+      </ul>
     </div>
-  </footer>
+  </div>
+</section>
+
+<section class="section" id="audit">
+  <div class="container">
+    <div class="section-head compact">
+      <div><span class="kicker">BUSINESS TECHNOLOGY AUDIT</span><h2>Know where your business stands.</h2></div>
+      <p>Answer 12 quick questions and get an indicative technology readiness score across five areas. This is a planning tool, not a certification.</p>
+    </div>
+
+    <div class="audit-layout">
+      <form id="auditForm" class="audit-card">
+        <div class="audit-intro">
+          <h3>Technology Readiness Check</h3>
+          <p>Score each statement from 0 to 4.</p>
+          <div class="scale"><span>0 = Not in place</span><span>4 = Strong & consistent</span></div>
+        </div>
+        <div id="questions"></div>
+        <button type="submit" class="btn btn-gold full">Calculate My Score</button>
+      </form>
+
+      <aside class="score-card" id="scoreCard">
+        <span class="kicker">YOUR SCORE</span>
+        <div class="score-number"><span id="scoreValue">--</span><small>/100</small></div>
+        <h3 id="scoreBand">Complete the audit</h3>
+        <p id="scoreSummary">Your result will appear here with a practical next-step recommendation.</p>
+        <div class="subscores" id="subscores"></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="founding10">
+  <div class="container founding">
+    <div>
+      <span class="kicker">USHA ONE — FOUNDING 10</span>
+      <h2>10 businesses. Real problems. Smarter systems.</h2>
+      <p class="large-copy">A focused program for selected businesses where we discover real operational challenges, design practical digital systems, automate repeatable work, measure the result and turn successful patterns into reusable technology.</p>
+    </div>
+    <div class="process">
+      <div><span>01</span><strong>Discover</strong></div>
+      <div><span>02</span><strong>Design</strong></div>
+      <div><span>03</span><strong>Build</strong></div>
+      <div><span>04</span><strong>Automate</strong></div>
+      <div><span>05</span><strong>Measure</strong></div>
+      <div><span>06</span><strong>Reuse</strong></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <div class="container split about-split">
+    <div>
+      <span class="kicker">OUR APPROACH</span>
+      <h2>Build → Automate → Scale.</h2>
+      <p class="large-copy">We begin with the system your business genuinely needs now. Then we reduce repetitive work, connect fragmented information and build the foundation for scalable growth.</p>
+    </div>
+    <div class="principles">
+      <div><strong>01</strong><span>Start with the business problem</span></div>
+      <div><strong>02</strong><span>Build only what creates value</span></div>
+      <div><strong>03</strong><span>Automate what repeats</span></div>
+      <div><strong>04</strong><span>Measure before scaling</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="contact-section" id="contact">
+  <div class="container contact-card">
+    <div><span class="kicker">LET’S BUILD THE RIGHT SYSTEM</span><h2>Technology built around your business.</h2><p>Tell us what is slowing your business down. We’ll help turn it into a practical digital system.</p></div>
+    <div class="contact-actions"><a class="btn btn-gold" href="tel:+918008426363">Call +91 8008426363</a><span>Jagtial, Telangana, India</span></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <img src="ASSETS/usha-one-text-transparent.png" alt="USHA ONE">
+    <div><strong>BUILD • AUTOMATE • SCALE</strong><span>© 2026 USHA ONE Technologies</span></div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
 </body>
 </html>
