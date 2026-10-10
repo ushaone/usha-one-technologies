@@ -23,7 +23,8 @@ function configured(env){
   // Explicitly approved public hostnames only. No wildcards, suffix matches or IPs.
   const allowedHosts=hosts.filter(host=>validateAuditUrl('https://'+host+'/').ok&&host===new URL('https://'+host+'/').hostname);
   return env?.ENABLE_PRIVATE_AUDIT==='true'&&typeof env?.AUDIT_PREVIEW_TOKEN==='string'&&env.AUDIT_PREVIEW_TOKEN.length>=24&&
-    typeof env?.AUDIT_RATE_LIMITER?.limit==='function'&&allowedHosts.length>0?allowedHosts:null;
+    typeof env?.AUDIT_RATE_LIMITER?.limit==='function'&&
+    typeof env?.AUDIT_SAFE_FETCH?.fetch==='function'&&allowedHosts.length>0?allowedHosts:null;
 }
 export default {
   async fetch(request,env={}){
@@ -48,7 +49,7 @@ export default {
     let rate;try{rate=await env.AUDIT_RATE_LIMITER.limit({key:'seo-private-preview'})}catch{return json({error:'Rate limiter unavailable'},503)}
     if(!rate?.success)return json({error:'Audit rate limit exceeded'},429);
     try{
-      const analysis=await auditAllowedPage(result.url,{allowedHosts,fetcher:env.AUDIT_FETCHER||fetch});
+      const analysis=await auditAllowedPage(result.url,{allowedHosts,fetcher:(url,options)=>env.AUDIT_SAFE_FETCH.fetch(url,options)});
       return json({status:'complete',liveCrawl:true,...analysis});
     }catch{
       // Avoid exposing upstream response or network internals to unauthenticated clients.
