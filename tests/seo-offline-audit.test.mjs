@@ -9,3 +9,5 @@ test('offline audit does not fetch remote content',()=>{assert.doesNotMatch(page
 test('offline evidence remains labeled offline',()=>{const html=readFileSync(new URL('./fixtures/seo-example-page.html',import.meta.url),'utf8');const result=analyzeHtml(html,'https://www.example.org/');const advice=buildSeoRecommendations({...result,source:'offline-html'});assert.equal(result.h1Count,1);assert.equal(result.internalLinks,1);assert.equal(result.externalLinks,1);assert.equal(advice.scope,'user-supplied-html');assert.equal(advice.scoring,'not-calculated')});
 
 test('offline HTML picker handles mixed-case extensions',()=>{assert.ok(page.includes('/\\.html?$/i.test(file.name)'))});
+
+test('offline UI rejects blank HTML before generating a report',()=>{assert.match(page,/if\(!html\.trim\(\)\)throw Error\('HTML file is empty'\)/)});
