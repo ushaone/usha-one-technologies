@@ -31,6 +31,7 @@ export async function auditAllowedPage(input,{allowedHosts=[],fetcher,timeoutMs=
     try{while(true){const {done,value}=await reader.read();if(done)break;total+=value.byteLength;if(total>MAX_BYTES)throw new Error('HTML response too large');chunks.push(value)}}finally{await reader.cancel().catch(()=>{})}
     const bytes=new Uint8Array(total);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length}
     const html=new TextDecoder('utf-8',{fatal:false}).decode(bytes);
+    if(!html.trim())throw new Error('Empty HTML response');
     return {source:'live-html',fetchedAt:new Date().toISOString(),httpStatus:response.status,...analyzeHtml(html,url.href),limitations:['Single HTML response only','No JS rendering','No Google indexing or performance measurement']};
   }finally{clearTimeout(timer)}
 }
