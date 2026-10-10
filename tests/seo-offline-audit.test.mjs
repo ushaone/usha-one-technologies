@@ -11,3 +11,5 @@ test('offline evidence remains labeled offline',()=>{const html=readFileSync(new
 test('offline HTML picker handles mixed-case extensions',()=>{assert.ok(page.includes('/\\.html?$/i.test(file.name)'))});
 
 test('offline UI rejects blank HTML before generating a report',()=>{assert.match(page,/if\(!html\.trim\(\)\)throw Error\('HTML file is empty'\)/)});
+
+test('blank HTML upload has an actionable error message',()=>{assert.match(page,/The selected HTML file is empty\. Choose a file containing HTML\./)});
