@@ -28,3 +28,5 @@ test('rejects unsupported timeout',async()=>{
 });
 
 test('requires explicit safe-egress fetcher and never uses global fetch',async()=>{await assert.rejects(auditAllowedPage('https://www.example.org/',{allowedHosts}),/Safe egress fetcher required/)});
+
+test('controlled fetch rejects explicit default HTTPS port without network access',async()=>{let called=false;await assert.rejects(auditAllowedPage('https://www.example.org:443/page',{allowedHosts,fetcher:async()=>{called=true;throw Error('unexpected fetch')}}),/Explicit ports/);assert.equal(called,false)});
