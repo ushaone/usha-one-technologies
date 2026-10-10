@@ -8,6 +8,10 @@ export async function auditAllowedPage(input,{allowedHosts=[],fetcher,timeoutMs=
   if(typeof input!=='string'||/^https:\/\/[^/?#]*:443(?:[/?#]|$)/i.test(input))throw new Error('Explicit ports are not allowed');
   const url=new URL(input);
   const host=url.hostname.toLowerCase();
+  // Defense in depth: do not rely on callers to reject internal or malformed names.
+  const forbidden=/(?:^|\.)(?:localhost|local|internal|test|invalid|example|home|lan)$/i.test(host);
+  const validDns=host.includes('.')&&host.length<=253&&!host.endsWith('.')&&/^[a-z0-9.-]+$/.test(host)&&host.split('.').every(part=>part.length>0&&part.length<=63&&!part.startsWith('-')&&!part.endsWith('-'));
+  if(forbidden||!validDns)throw new Error('Hostname is not eligible for live audit');
   if(url.protocol!=='https:'||url.username||url.password||url.port||url.hash||url.href.length>2048||host.startsWith('[')||/^\d+(?:\.\d+){3}$/.test(host)||!allowedHosts.some(item=>typeof item==='string'&&item.toLowerCase()===host))throw new Error('Host is not explicitly approved for live audit');
   if(!Number.isFinite(timeoutMs)||timeoutMs<1||timeoutMs>10000)throw new Error('Invalid timeout');
   const controller=new AbortController();
