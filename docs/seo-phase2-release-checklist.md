@@ -5,11 +5,12 @@
 - Standalone browser URL preflight and offline HTML evidence parser.
 - Bounded HTML fetcher with exact hostname allowlist, HTTPS-only URLs, manual redirect handling, 250 KB response cap and 5-second timeout.
 - Isolated `worker/seo-audit-phase2.js` private API, disabled by default.
+- Offline HTML audit browser UI, downloadable JSON report and a printable local report viewer; all linked from the SEO services page on this branch.
 - Integration and regression tests run through GitHub Actions.
 - A separate `wrangler.seo-preview.jsonc` with Worker name `usha-seo-audit-preview`.
 
 ## What is NOT finished
-This is **not a production-ready public website crawler**. The exact hostname allowlist is not a substitute for DNS resolution and network-level egress protection against SSRF, DNS rebinding and private address destinations. There is no authenticated public dashboard, real-site verification, multi-page crawling, PageSpeed measurement, Search Console integration or PDF renderer. No numeric SEO score is claimed.
+The **offline SEO toolchain is feature-complete on the development branch** but not yet browser-smoke-tested or deployed. This is **not a production-ready public website crawler**. The exact hostname allowlist is not a substitute for DNS resolution and network-level egress protection against SSRF, DNS rebinding and private address destinations. There is no authenticated public dashboard, real-site verification, multi-page crawling, PageSpeed measurement or Search Console integration. The report viewer supports browser Print / Save PDF, not server-side PDF generation. No numeric SEO score is claimed.
 
 ## Private preview configuration
 The committed preview configuration intentionally disables live crawling. Do not enable it merely because offline unit tests pass. To enable an **internal, controlled** preview in a security-reviewed environment, configure:
@@ -30,8 +31,13 @@ No values or secrets have been configured in the repository. The API fails close
 - Add DNS/IP-aware egress restrictions, then test DNS rebinding, CNAME-to-private, metadata IP, redirect-to-private, encoded IP variants, and IPv6.
 - Verify actual Cloudflare rate-limiter binding, access policy, outbound restrictions and real Worker deployment in isolated preview.
 - Check real owned pages with consent and compare findings against source HTML manually.
-- Add a secure reporting UI and printable/PDF output, then accessibility and mobile tests.
+- Offline report viewer and browser print/PDF are implemented; complete browser-based mobile, accessibility and end-to-end smoke tests before deployment.
 - Only then discuss public launch. Do not merge this branch into production `main` or deploy to Worker `tech` until all release gates pass.
 
 ## CI
 `node --test tests/seo-*.test.mjs`
+
+## Distinct release decisions
+- **Offline tools:** Can be considered for a static-assets-only release after current Actions success and a browser smoke test. They do not enable live auditing or require cloud API secrets.
+- **Private live API:** Continue to keep disabled. Its safe-egress gateway, rate limiter, private access controls and isolated deployment have not been verified.
+- **Public live crawling:** Blocked until separate threat model, DNS/IP and operational checks are complete. Do not claim a release date or production readiness from unit tests alone.
