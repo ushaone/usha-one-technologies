@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Offline HTML SEO Audit | USHA ONE Technologies</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#112b45}*{box-sizing:border-box}body{background:#081d34;margin:0}.wrap{max-width:920px;margin:auto;padding:35px 20px}.brand{font-weight:800;color:#fff;letter-spacing:.1em}.brand span{color:#e9b54e}h1{font-size:clamp(28px,5vw,48px);color:#fff;margin:35px 0 8px}header p{color:#d4e1ee;line-height:1.7}.panel{background:#fff;padding:26px;border-radius:18px;margin-top:25px}label{display:block;font-weight:700;margin:18px 0 7px}input[type=url],input[type=file]{display:block;width:100%;max-width:100%;padding:13px;border:1px solid #b8c9d8;border-radius:9px}button{border:0;background:#edbb54;color:#12283d;border-radius:10px;padding:13px 20px;font:inherit;font-weight:800;cursor:pointer;margin-top:22px}button:disabled{opacity:.55}.hint{color:#52677c;line-height:1.6;font-size:14px}#status{min-height:24px;overflow-wrap:anywhere}a{color:#8d6317}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{padding:17px;border:1px solid #dce5ed;border-radius:11px;overflow-wrap:anywhere}.card strong{display:block;margin-bottom:8px}.hidden{display:none}@media(max-width:600px){.cards{grid-template-columns:1fr}.panel{padding:20px}}
+</style></head><body><div class="wrap"><header><div class="brand">USHA <span>ONE</span> TECHNOLOGIES</div><h1>Offline HTML SEO Audit</h1><p>Analyze an HTML file you own, directly in your browser. No crawling, no network requests, and no upload of your HTML. Export an evidence-based JSON report for the report viewer.</p></header>
+<main><section class="panel"><h2>Analyze a local HTML file</h2><label for="pageUrl">Original page URL (for resolving links)</label><input id="pageUrl" type="url" placeholder="https://www.yourwebsite.com/page" required><label for="htmlFile">HTML file (up to 250 KB)</label><input id="htmlFile" type="file" accept=".html,.htm,text/html" required><button type="button" id="analyze">Analyze HTML</button><p id="status" role="status" class="hint"></p><p class="hint">This checks only the HTML supplied. It does not verify that the live website serves the same HTML or measure indexing, performance, or ranking.</p></section>
+<section id="results" class="panel hidden"><h2>Findings</h2><div id="cards" class="cards"></div><button id="download" type="button">Download JSON Report</button><p class="hint">Open the JSON in the <a href="./seo-audit-report.html">SEO Report Viewer</a> for a printable report.</p></section></main></div>
+<script type="module">
+import {analyzeHtml} from './worker/seo-html-analysis.mjs';
+import {buildSeoRecommendations} from './worker/seo-recommendations.mjs';
+const $=id=>document.getElementById(id);
+let report=null;
+function card(label,value){const node=document.createElement('div');node.className='card';const heading=document.createElement('strong');heading.textContent=label;const body=document.createElement('div');body.textContent=String(value??'Not observed');node.append(heading,body);$('cards').append(node)}
+$('analyze').addEventListener('click',async()=>{
+ $('status').textContent='';$('results').classList.add('hidden');report=null;
+ const file=$('htmlFile').files?.[0];let url;
+ try{url=new URL($('pageUrl').value);if(!['https:','http:'].includes(url.protocol)||url.username||url.password)throw Error()}catch{$('status').textContent='Enter a valid HTTP or HTTPS page URL.';return}
+ if(!file){$('status').textContent='Choose an HTML file first.';return}
+ if(file.size>250000){$('status').textContent='HTML file exceeds 250 KB.';return}
+ try{
+ const html=await file.text();const analysis=analyzeHtml(html,url.href);
+ const suggestions=buildSeoRecommendations({...analysis,source:'live-html'});
+ report={status:'complete',source:'offline-html',liveCrawl:false,url:url.href,fetchedAt:null,httpStatus:null,...analysis,...suggestions,scope:'user-supplied-html',limitations:['Local HTML file only','No live crawl or server response verification','No indexing, ranking or performance metrics']};
+ $('cards').replaceChildren();card('Page title',report.title||'Missing');card('Meta description',report.description||'Missing');card('H1 count',report.h1Count);card('Canonical',report.canonical||'Not found');card('Recommendations',report.recommendations.length);
+ for(const item of report.recommendations)card(item.severity.toUpperCase()+': '+item.id,item.message+' — '+item.evidence);
+ $('results').classList.remove('hidden');$('status').textContent='Offline HTML analysis completed. No website was contacted.';
+ }catch{$('status').textContent='Could not analyze this HTML file.'}
+});
+$('download').addEventListener('click',()=>{if(!report)return;const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='usha-one-offline-seo-report.json';a.click();URL.revokeObjectURL(url)});
+</script></body></html>
