@@ -17,7 +17,7 @@ $('analyze').addEventListener('click',async()=>{
  try{url=new URL($('pageUrl').value);if(!['https:','http:'].includes(url.protocol)||url.username||url.password)throw Error()}catch{$('status').textContent='Enter a valid HTTP or HTTPS page URL.';return}
  if(!file){$('status').textContent='Choose an HTML file first.';return}
  if(file.size>250000){$('status').textContent='HTML file exceeds 250 KB.';return}
- if(!/\.(?:html?|HTML?)$/.test(file.name)){ $('status').textContent='Choose an .html or .htm file.';return }
+ if(!/\.html?$/i.test(file.name)){ $('status').textContent='Choose an .html or .htm file.';return }
  try{
  const html=await file.text();if(html.length>250000)throw Error('HTML text too large');const analysis=analyzeHtml(html,url.href);
  const suggestions=buildSeoRecommendations({...analysis,source:'offline-html'});
