@@ -17,6 +17,7 @@ on:
       - 'tests/seo-private-api.test.mjs'
       - 'tests/seo-report.test.mjs'
       - 'tests/seo-recommendations.test.mjs'
+      - 'tests/seo-configuration.test.mjs'
       - 'worker/seo-recommendations.mjs'
       - 'wrangler.seo-preview.jsonc'
       - '.github/workflows/seo-phase2-tests.yml'
@@ -32,4 +33,4 @@ jobs:
         with:
           node-version: '22'
       - name: Run SEO Phase 2 offline tests
-        run: node --test tests/seo-preflight.test.mjs tests/seo-audit-api.test.mjs tests/seo-html-analysis.test.mjs tests/seo-controlled-fetch.test.mjs tests/seo-private-api.test.mjs tests/seo-report.test.mjs tests/seo-recommendations.test.mjs
+        run: node --test tests/seo-preflight.test.mjs tests/seo-audit-api.test.mjs tests/seo-html-analysis.test.mjs tests/seo-controlled-fetch.test.mjs tests/seo-private-api.test.mjs tests/seo-report.test.mjs tests/seo-recommendations.test.mjs tests/seo-configuration.test.mjs
