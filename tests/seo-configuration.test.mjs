@@ -8,3 +8,6 @@ for(const host of ['[','%%%','http://example.org','example.org:443','*.example.o
  test('malformed host configuration fails closed: '+host,async()=>{const r=await worker.fetch(request(),{...common,AUDIT_ALLOWED_HOSTS:host});assert.equal(r.status,503)});
 }
 test('disabled flag blocks outbound request',async()=>{let called=false;const r=await worker.fetch(request(),{...common,ENABLE_PRIVATE_AUDIT:'false',AUDIT_ALLOWED_HOSTS:'www.example.org',AUDIT_SAFE_FETCH:{fetch:async()=>{called=true}}});assert.equal(r.status,503);assert.equal(called,false)});
+
+test('mixed valid and invalid host configuration fails closed',async()=>{const r=await worker.fetch(request(),{...common,AUDIT_ALLOWED_HOSTS:'www.example.org,localhost'});assert.equal(r.status,503)});
+test('duplicate host configuration fails closed',async()=>{const r=await worker.fetch(request(),{...common,AUDIT_ALLOWED_HOSTS:'www.example.org,www.example.org'});assert.equal(r.status,503)});
