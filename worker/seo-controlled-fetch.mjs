@@ -23,8 +23,9 @@ export async function auditAllowedPage(input,{allowedHosts=[],fetcher,timeoutMs=
     const type=response.headers.get('content-type')||'';
     if(!/^text\/html(?:\s*;|\s*$)/i.test(type))throw new Error('Expected HTML content');
     const rawLength=response.headers.get('content-length');
+    if(rawLength!==null&&!/^(?:0|[1-9][0-9]*)$/.test(rawLength))throw new Error('Invalid HTML content length');
     const length=rawLength===null?null:Number(rawLength);
-    if(length!==null&&(!Number.isSafeInteger(length)||length<0||length>MAX_BYTES))throw new Error('Invalid or oversized HTML content length');
+    if(length!==null&&(!Number.isSafeInteger(length)||length>MAX_BYTES))throw new Error('Invalid or oversized HTML content length');
     if(!response.body)throw new Error('Empty response body');
     const reader=response.body.getReader();const chunks=[];let total=0;
     try{while(true){const {done,value}=await reader.read();if(done)break;total+=value.byteLength;if(total>MAX_BYTES)throw new Error('HTML response too large');chunks.push(value)}}finally{await reader.cancel().catch(()=>{})}
