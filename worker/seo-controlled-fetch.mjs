@@ -4,6 +4,8 @@ import { analyzeHtml } from './seo-html-analysis.mjs';
 const MAX_BYTES=250_000;
 export async function auditAllowedPage(input,{allowedHosts=[],fetcher,timeoutMs=5000}={}){
   if(typeof fetcher!=='function')throw new Error('Safe egress fetcher required');
+  // URL normalization removes the default HTTPS port; inspect the authority before parsing.
+  if(typeof input!=='string'||/^https:\/\/[^/?#]*:443(?:[/?#]|$)/i.test(input))throw new Error('Explicit ports are not allowed');
   const url=new URL(input);
   const host=url.hostname.toLowerCase();
   if(url.protocol!=='https:'||url.username||url.password||url.port||url.hash||url.href.length>2048||host.startsWith('[')||/^\d+(?:\.\d+){3}$/.test(host)||!allowedHosts.some(item=>typeof item==='string'&&item.toLowerCase()===host))throw new Error('Host is not explicitly approved for live audit');
