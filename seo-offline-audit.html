@@ -19,7 +19,7 @@ $('analyze').addEventListener('click',async()=>{
  if(file.size>250000){$('status').textContent='HTML file exceeds 250 KB.';return}
  if(!/\.html?$/i.test(file.name)){ $('status').textContent='Choose an .html or .htm file.';return }
  try{
- const html=await file.text();if(html.length>250000)throw Error('HTML text too large');const analysis=analyzeHtml(html,url.href);
+ const html=await file.text();if(html.length>250000)throw Error('HTML text too large');if(!html.trim())throw Error('HTML file is empty');const analysis=analyzeHtml(html,url.href);
  const suggestions=buildSeoRecommendations({...analysis,source:'offline-html'});
  report={status:'complete',source:'offline-html',liveCrawl:false,url:url.href,fetchedAt:null,httpStatus:null,...analysis,...suggestions,scope:'user-supplied-html',limitations:['Local HTML file only','No live crawl or server response verification','No indexing, ranking or performance metrics']};
  $('cards').replaceChildren();card('Page title',report.title||'Missing');card('Meta description',report.description||'Missing');card('H1 count',report.h1Count);card('Canonical',report.canonical||'Not found');card('Recommendations',report.recommendations.length);
