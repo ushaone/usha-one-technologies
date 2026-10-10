@@ -17,8 +17,9 @@ $('analyze').addEventListener('click',async()=>{
  try{url=new URL($('pageUrl').value);if(!['https:','http:'].includes(url.protocol)||url.username||url.password)throw Error()}catch{$('status').textContent='Enter a valid HTTP or HTTPS page URL.';return}
  if(!file){$('status').textContent='Choose an HTML file first.';return}
  if(file.size>250000){$('status').textContent='HTML file exceeds 250 KB.';return}
+ if(!/\.(?:html?|HTML?)$/.test(file.name)){ $('status').textContent='Choose an .html or .htm file.';return }
  try{
- const html=await file.text();const analysis=analyzeHtml(html,url.href);
+ const html=await file.text();if(html.length>250000)throw Error('HTML text too large');const analysis=analyzeHtml(html,url.href);
  const suggestions=buildSeoRecommendations({...analysis,source:'live-html'});
  report={status:'complete',source:'offline-html',liveCrawl:false,url:url.href,fetchedAt:null,httpStatus:null,...analysis,...suggestions,scope:'user-supplied-html',limitations:['Local HTML file only','No live crawl or server response verification','No indexing, ranking or performance metrics']};
  $('cards').replaceChildren();card('Page title',report.title||'Missing');card('Meta description',report.description||'Missing');card('H1 count',report.h1Count);card('Canonical',report.canonical||'Not found');card('Recommendations',report.recommendations.length);
@@ -26,5 +27,5 @@ $('analyze').addEventListener('click',async()=>{
  $('results').classList.remove('hidden');$('status').textContent='Offline HTML analysis completed. No website was contacted.';
  }catch{$('status').textContent='Could not analyze this HTML file.'}
 });
-$('download').addEventListener('click',()=>{if(!report)return;const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='usha-one-offline-seo-report.json';a.click();URL.revokeObjectURL(url)});
+$('download').addEventListener('click',()=>{if(!report)return;const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='usha-one-offline-seo-report.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
 </script></body></html>
