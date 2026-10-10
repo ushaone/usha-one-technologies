@@ -11,7 +11,7 @@ for(const url of ['http://example.org','file:///etc/passwd','https://localhost',
 test('starter never claims an audit was performed',async()=>{
   const req=new Request('https://audit.invalid/api/seo/audits',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:'https://example.org/'})});
   const response=await worker.fetch(req);
-  assert.equal(response.status,501);
+  assert.equal(response.status,503);
   const data=await response.json();
   assert.equal(data.liveCrawl,false);
   assert.deepEqual(data.checks,[]);
