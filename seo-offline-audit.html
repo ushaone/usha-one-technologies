@@ -25,7 +25,7 @@ $('analyze').addEventListener('click',async()=>{
  $('cards').replaceChildren();card('Page title',report.title||'Missing');card('Meta description',report.description||'Missing');card('H1 count',report.h1Count);card('Canonical',report.canonical||'Not found');card('Recommendations',report.recommendations.length);
  for(const item of report.recommendations)card(item.severity.toUpperCase()+': '+item.id,item.message+' — '+item.evidence);
  $('results').classList.remove('hidden');$('status').textContent='Offline HTML analysis completed. No website was contacted.';
- }catch{$('status').textContent='Could not analyze this HTML file.'}
+ }catch(error){$('status').textContent=error?.message==='HTML file is empty'?'The selected HTML file is empty. Choose a file containing HTML.':'Could not analyze this HTML file.'}
 });
 $('download').addEventListener('click',()=>{if(!report)return;const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='usha-one-offline-seo-report.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
 </script></body></html>
