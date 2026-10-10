@@ -10,8 +10,10 @@ test('report is local file only, not a remote data collector',()=>{
 });
 test('rejects incomplete or fake audit results',()=>{
  assert.match(page,/data\.status!=='complete'/);
- assert.match(page,/data\.liveCrawl!==true/);
- assert.match(page,/data\.source!=='live-html'/);
+ assert.match(page,/data\.liveCrawl===true/);
+ assert.match(page,/data\.liveCrawl===false/);
+ assert.match(page,/data\.source==='live-html'/);
+ assert.match(page,/data\.source==='offline-html'/);
 });
 test('renders user-supplied values as text and prints locally',()=>{
  assert.match(page,/p\.textContent=/);
