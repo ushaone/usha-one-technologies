@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Offline HTML SEO Audit | USHA ONE Technologies</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#112b45}*{box-sizing:border-box}body{background:#081d34;margin:0}.wrap{max-width:920px;margin:auto;padding:35px 20px}.brand{font-weight:800;color:#fff;letter-spacing:.1em}.brand span{color:#e9b54e}h1{font-size:clamp(28px,5vw,48px);color:#fff;margin:35px 0 8px}header p{color:#d4e1ee;line-height:1.7}.panel{background:#fff;padding:26px;border-radius:18px;margin-top:25px}label{display:block;font-weight:700;margin:18px 0 7px}input[type=url],input[type=file]{display:block;width:100%;max-width:100%;padding:13px;border:1px solid #b8c9d8;border-radius:9px}button{border:0;background:#edbb54;color:#12283d;border-radius:10px;padding:13px 20px;font:inherit;font-weight:800;cursor:pointer;margin-top:22px}button:disabled{opacity:.55}.hint{color:#52677c;line-height:1.6;font-size:14px}#status{min-height:24px;overflow-wrap:anywhere}a{color:#8d6317}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{padding:17px;border:1px solid #dce5ed;border-radius:11px;overflow-wrap:anywhere}.card strong{display:block;margin-bottom:8px}.hidden{display:none}@media(max-width:600px){.cards{grid-template-columns:1fr}.panel{padding:20px}}
+</style></head><body><div class="wrap"><header><div class="brand">USHA <span>ONE</span> TECHNOLOGIES</div><h1>Offline HTML SEO Audit</h1><p>Analyze an HTML file you own, directly in your browser. No crawling, no network requests, and no upload of your HTML. Export an evidence-based JSON report for the report viewer.</p></header>
+<main><section class="panel"><h2>Analyze a local HTML file</h2><label for="pageUrl">Original page URL (for resolving links)</label><input id="pageUrl" type="url" placeholder="https://www.yourwebsite.com/page" required><label for="htmlFile">HTML file (up to 250 KB)</label><input id="htmlFile" type="file" accept=".html,.htm,text/html" required><button type="button" id="analyze">Analyze HTML</button><p id="status" role="status" class="hint"></p><p class="hint">This checks only the HTML supplied. It does not verify that the live website serves the same HTML or measure indexing, performance, or ranking.</p></section>
+<section id="results" class="panel hidden"><h2>Findings</h2><div id="cards" class="cards"></div><button id="download" type="button">Download JSON Report</button><p class="hint">Open the JSON in the <a href="./seo-audit-report.html">SEO Report Viewer</a> for a printable report.</p></section></main></div>
+<script>
+// Offline-only HTML evidence extraction for SEO Phase 2.
+// This module performs NO network requests. Input must be bounded by the caller.
+function decode(value){return String(value||'').replace(/&(?:amp|lt|gt|quot|apos|#39|#x([0-9a-f]+)|#([0-9]+));/gi,(full,hex,dec)=>{if(hex||dec){const n=parseInt(hex||dec,hex?16:10);return n>0&&n<=0x10ffff?String.fromCodePoint(n):full}return {'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&#39;':"'"}[full.toLowerCase()]||full}).trim()}
+function attrs(tag){const out={};const pattern=/([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g;for(const m of tag.matchAll(pattern)){const key=m[1].toLowerCase();if(!Object.hasOwn(out,key))out[key]=decode(m[2]??m[3]??m[4])}return out}
+function text(value){return decode(value.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ')).slice(0,500)}
+function analyzeHtml(html,pageUrl){
+  if(typeof html!=='string'||html.length>1_000_000)throw new Error('HTML input must be at most 1 MB');
+  const page=new URL(pageUrl);
+  const head=html.match(/<head\b[^>]*>([\s\S]*?)<\/head\s*>/i)?.[1]||'';
+  const safeHead=head.replace(/<!--[\s\S]*?-->/g,'').replace(/<(?:script|style)\b[^>]*>[\s\S]*?<\/(?:script|style)\s*>/gi,'');
+  const title=text(safeHead.match(/<title\b[^>]*>([\s\S]*?)<\/title\s*>/i)?.[1]||'');
+  const metas=[...safeHead.matchAll(/<meta\b[^>]*>/gi)].map(m=>attrs(m[0]));
+  const links=[...safeHead.matchAll(/<link\b[^>]*>/gi)].map(m=>attrs(m[0]));
+  const description=metas.find(m=>m.name?.toLowerCase()==='description')?.content||'';
+  const robots=metas.find(m=>m.name?.toLowerCase()==='robots')?.content||'';
+  const viewport=metas.find(m=>m.name?.toLowerCase()==='viewport')?.content||'';
+  const canonicalRaw=links.find(l=>l.rel?.toLowerCase().split(/\s+/).includes('canonical'))?.href||'';
+  let canonical=null;try{if(canonicalRaw){const u=new URL(canonicalRaw,page);if(['https:','http:'].includes(u.protocol))canonical=u.href}}catch{}
+  const cleanBody=html.replace(/<!--[\s\S]*?-->/g,'').replace(/<(?:script|style|noscript|template)\b[^>]*>[\s\S]*?<\/(?:script|style|noscript|template)\s*>/gi,'');
+  const h1=[...cleanBody.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1\s*>/gi)].map(m=>text(m[1]));
+  const anchors=[...cleanBody.matchAll(/<a\b[^>]*>/gi)];
+  let internalLinks=0,externalLinks=0;
+  for(const match of anchors){const href=attrs(match[0]).href;if(!href)continue;try{const target=new URL(href,page);if(!['http:','https:'].includes(target.protocol))continue;if(target.hostname===page.hostname)internalLinks++;else externalLinks++}catch{}}
+  return {url:page.href,title,description,canonical,robots,viewport,h1,h1Count:h1.length,internalLinks,externalLinks,observations:[
+    {key:'title',status:title?'observed':'missing',value:title||null},
+    {key:'metaDescription',status:description?'observed':'missing',value:description||null},
+    {key:'h1',status:h1.length===1?'observed':h1.length===0?'missing':'review',value:h1},
+    {key:'canonical',status:canonical?'observed':'missing',value:canonical},
+    {key:'robotsMeta',status:robots?'observed':'not_specified',value:robots||null},
+    {key:'viewport',status:viewport?'observed':'missing',value:viewport||null}
+  ]};
+}
+
+// Evidence-based recommendations for one HTML response or a user-supplied offline HTML file.
+function buildSeoRecommendations(result){
+ if(!result||!['live-html','offline-html'].includes(result.source)||!Array.isArray(result.observations))throw new Error('Measured HTML audit required');
+ const out=[];
+ const add=(id,severity,message,evidence)=>out.push({id,severity,message,evidence});
+ if(!result.title)add('title-missing','high','Add a descriptive HTML title.','No title observed');
+ else if(result.title.length>65)add('title-long','info','Review title display in search results; truncation varies.',result.title.length+' characters');
+ if(!result.description)add('description-missing','medium','Write a useful meta description.','No description observed');
+ if(result.h1Count===0)add('h1-missing','medium','Add a clear primary heading.','0 H1 headings observed');
+ else if(result.h1Count>1)add('h1-multiple','info','Review heading hierarchy; multiple H1 elements are not automatically an SEO error.',result.h1Count+' H1 headings observed');
+ if(!result.canonical)add('canonical-missing','info','Consider a canonical URL if duplicate or alternate URLs exist.','No canonical link observed');
+ if(!result.viewport)add('viewport-missing','medium','Add a responsive viewport meta tag.','No viewport observed');
+ if(/(?:^|[,\s])noindex(?:[,\s]|$)/i.test(result.robots||''))add('noindex','high','Confirm excluding this page from indexing is intentional.','Robots meta: '+result.robots);
+ return {scope:result.source==='offline-html'?'user-supplied-html':'single-html-response',scoring:'not-calculated',recommendations:out,disclaimer:'Only supplied HTML was inspected. No indexing, ranking, performance or site-wide verification.'};
+}
+
+const $=id=>document.getElementById(id);
+let report=null;
+function card(label,value){const node=document.createElement('div');node.className='card';const heading=document.createElement('strong');heading.textContent=label;const body=document.createElement('div');body.textContent=String(value??'Not observed');node.append(heading,body);$('cards').append(node)}
+$('analyze').addEventListener('click',async()=>{
+ $('status').textContent='';$('results').classList.add('hidden');report=null;
+ const file=$('htmlFile').files?.[0];let url;
+ try{url=new URL($('pageUrl').value);if(!['https:','http:'].includes(url.protocol)||url.username||url.password)throw Error()}catch{$('status').textContent='Enter a valid HTTP or HTTPS page URL.';return}
+ if(!file){$('status').textContent='Choose an HTML file first.';return}
+ if(file.size>250000){$('status').textContent='HTML file exceeds 250 KB.';return}
+ if(!/\.html?$/i.test(file.name)){ $('status').textContent='Choose an .html or .htm file.';return }
+ try{
+ const html=await file.text();if(html.length>250000)throw Error('HTML text too large');if(!html.trim())throw Error('HTML file is empty');const analysis=analyzeHtml(html,url.href);
+ const suggestions=buildSeoRecommendations({...analysis,source:'offline-html'});
+ report={status:'complete',source:'offline-html',liveCrawl:false,url:url.href,fetchedAt:null,httpStatus:null,...analysis,...suggestions,scope:'user-supplied-html',limitations:['Local HTML file only','No live crawl or server response verification','No indexing, ranking or performance metrics']};
+ $('cards').replaceChildren();card('Page title',report.title||'Missing');card('Meta description',report.description||'Missing');card('H1 count',report.h1Count);card('Canonical',report.canonical||'Not found');card('Recommendations',report.recommendations.length);
+ for(const item of report.recommendations)card(item.severity.toUpperCase()+': '+item.id,item.message+' — '+item.evidence);
+ $('results').classList.remove('hidden');$('status').textContent='Offline HTML analysis completed. No website was contacted.';
+ }catch(error){$('status').textContent=error?.message==='HTML file is empty'?'The selected HTML file is empty. Choose a file containing HTML.':'Could not analyze this HTML file.'}
+});
+$('download').addEventListener('click',()=>{if(!report)return;const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='usha-one-offline-seo-report.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+</script></body></html>
