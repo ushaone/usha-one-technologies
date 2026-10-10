@@ -30,7 +30,7 @@ The site-served modular `seo-offline-audit.html` remains available for developme
 - The private live audit API remains disabled unless explicitly configured with a safe-egress binding, approved hosts, authentication, and global rate limiting.
 
 ## Automated checks
-Run `node --test tests/*.test.mjs` on Node.js 22 from repository root. GitHub Actions checks the standalone generated file matches the source, runs all Phase 2 unit tests, and runs `node scripts/seo-browser-smoke.mjs` in real headless Chrome to check upload, blank-file errors, JSON import/export, URL preflight, narrow mobile layout and HTML injection safety. Safari/WebKit and physical-device PDF printing are not covered by these automated tests.
+Run `node --test tests/*.test.mjs` on Node.js 22 from repository root. GitHub Actions checks the standalone generated file matches the source, runs all Phase 2 unit tests, and runs `node scripts/seo-browser-smoke.mjs` in real headless Chrome to check upload, blank-file errors, JSON import/export, URL preflight, homepage navigation, SEO mobile menu, narrow mobile layout and HTML injection safety. It also runs `node scripts/seo-print-pdf-smoke.mjs` to generate and validate a printed PDF. Safari/WebKit and physical-device PDF printing are not covered.
 
 ## Outstanding production blockers
 DNS/IP-aware safe egress service implementation and verification, isolated Worker deployment, real-world browser tests, Cloudflare rate limiting, private access controls, security review, and public product requirements. Do not replace the production `tech` Worker.
