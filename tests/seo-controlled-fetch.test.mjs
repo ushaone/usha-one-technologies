@@ -35,6 +35,8 @@ for(const target of ['https://host.local/','https://service.internal/','https://
 
 for(const length of ['abc','-1','250001','1.5'])test('rejects invalid content-length '+length,async()=>{await assert.rejects(auditAllowedPage('https://www.example.org/',{allowedHosts,fetcher:fake(html,{headers:{'content-type':'text/html','content-length':length}})}),/content length/)});
 
-for(const length of ['',' 5','05','+5','5.0'])test('rejects noncanonical content-length '+JSON.stringify(length),async()=>{await assert.rejects(auditAllowedPage('https://www.example.org/',{allowedHosts,fetcher:fake(html,{headers:{'content-type':'text/html','content-length':length}})}),/content length/)});
+for(const length of ['','05','+5','5.0'])test('rejects noncanonical content-length '+JSON.stringify(length),async()=>{await assert.rejects(auditAllowedPage('https://www.example.org/',{allowedHosts,fetcher:fake(html,{headers:{'content-type':'text/html','content-length':length}})}),/content length/)});
+// Web Headers normalizes surrounding whitespace before application code receives the value.
+test('accepts content-length after standard HTTP header whitespace normalization',async()=>{const result=await auditAllowedPage('https://www.example.org/',{allowedHosts,fetcher:fake(html,{headers:{'content-type':'text/html','content-length':' 5'}})});assert.equal(result.title,'Example')});
 
 for(const body of ['', ' \n\t '])test('empty or whitespace-only HTML is not a successful audit',async()=>{await assert.rejects(auditAllowedPage('https://www.example.org/',{allowedHosts,fetcher:fake(body)}),/Empty HTML response/)});
