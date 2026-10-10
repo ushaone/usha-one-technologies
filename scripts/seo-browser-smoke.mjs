@@ -12,13 +12,14 @@ const browser=browsers.find(bin=>{const r=spawnSync(bin,['--version'],{encoding:
 if(!browser)throw Error('Google Chrome / Chromium required for real-browser tests');
 const sample='<!doctype html><head><title>SEO Fixture</title><meta name="description" content="Test description"></head><body><h1>Fixture heading</h1></body>';
 const wait="const waitFor=async check=>{for(let i=0;i<80;i++){if(check())return;await new Promise(resolve=>setTimeout(resolve,20))}throw Error('Timed out waiting for page')};";
-function smoke(fileName,name,code){
+function smoke(fileName,name,code,mobile=false){
   const source=readFileSync(join(root,fileName),'utf8');
   assert.ok(source.includes('</body>'));
   const injection='<script>(async()=>{try{'+wait+code+';document.documentElement.setAttribute("data-browser-smoke","passed")}catch(e){document.documentElement.setAttribute("data-browser-smoke","failed");document.documentElement.setAttribute("data-browser-error",String(e.message||e))}})();</script>';
   const path=join(temp,name+'.html');
   writeFileSync(path,source.replace('</body>',injection+'</body>'));
   const args=['--headless=new','--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-first-run','--disable-background-networking','--user-data-dir='+join(temp,'profile-'+name),'--virtual-time-budget=3500','--dump-dom',pathToFileURL(path).href];
+  if(mobile)args.splice(args.length-2,0,'--window-size=420,840');
   const result=spawnSync(browser,args,{encoding:'utf8',timeout:30000,maxBuffer:5_000_000});
   assert.equal(result.status,0,name+' Chrome failed: '+String(result.stderr).slice(-1000));
   assert.match(result.stdout,/data-browser-smoke="passed"/,name+' browser failure: '+String(result.stdout.match(/data-browser-error="([^"]*)"/)?.[1]||'missing browser result'));
@@ -65,4 +66,17 @@ try{
    'if(document.getElementById("results").hidden)throw Error("URL findings hidden")',
    'if(!document.getElementById("grid").textContent.includes("Live crawl / indexing"))throw Error("Missing limitations")'
  ].join(';'));
+
+ smoke('seo-audit-report.html','mobile-xss-report',[
+   'const danger="<img src=x onerror=alert(1)>"',
+   'const data={status:"complete",source:"offline-html",liveCrawl:false,url:"https://www.example.org/",observations:[{key:"title",status:"observed",value:danger}],title:danger,h1:[danger],h1Count:1,recommendations:[]}',
+   'const dt=new DataTransfer();dt.items.add(new File([JSON.stringify(data)],"report.json",{type:"application/json"}))',
+   'const picker=document.getElementById("file");picker.files=dt.files;picker.dispatchEvent(new Event("change"))',
+   'await waitFor(()=>!document.getElementById("print").disabled)',
+   'if(document.getElementById("cards").querySelector("img"))throw Error("Untrusted HTML parsed as markup")',
+   'if(!document.getElementById("cards").textContent.includes(danger))throw Error("Untrusted text not visible")',
+   'if(window.innerWidth>600)throw Error("Narrow viewport not applied: "+window.innerWidth)',
+   'if(document.documentElement.scrollWidth>document.documentElement.clientWidth+4)throw Error("Mobile horizontal overflow")',
+   'if(getComputedStyle(document.getElementById("cards")).gridTemplateColumns.trim().split(/\\s+/).length!==1)throw Error("Mobile layout not one column")'
+ ].join(';'),true);
 }finally{rmSync(temp,{recursive:true,force:true})}
