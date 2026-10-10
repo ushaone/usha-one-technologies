@@ -20,7 +20,7 @@ export function validateAuditUrl(input){
   return {ok:true,url:u.href,hostname:host};
 }
 function configured(env){
-  const hosts=String(env?.AUDIT_ALLOWED_HOSTS||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+  const hosts=typeof env?.AUDIT_ALLOWED_HOSTS==='string'?env.AUDIT_ALLOWED_HOSTS.split(',').map(s=>s.trim().toLowerCase()):[];
   // Explicitly approved public hostnames only. No wildcards, suffix matches or IPs.
   const allowedHosts=hosts.filter(host=>{const check=validateAuditUrl('https://'+host+'/');return check.ok&&host===check.hostname});
   // Reject the entire configuration if any entry is malformed, rather than silently ignoring it.
