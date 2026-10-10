@@ -17,7 +17,7 @@ The committed preview configuration intentionally disables live crawling. To ena
 2. `AUDIT_ALLOWED_HOSTS` as an explicit comma-separated set of owned, approved public domains (no wildcard).
 3. `AUDIT_PREVIEW_TOKEN` as a secret, never a checked-in variable or public browser token.
 4. `AUDIT_RATE_LIMITER` as a globally enforced rate limiter with `limit({key})` returning `{success:boolean}`.
-5. Outbound network policy / safe fetch gateway that verifies public DNS and final destination IP at connection time, blocks private/reserved ranges and rebinding, and never follows redirects.
+5. Mandatory `AUDIT_SAFE_FETCH` binding exposing `fetch(url, options)` through a separately audited safe-egress service. This service must verify public DNS and final destination IP at connection time, block private/reserved ranges and rebinding, enforce the exact approved hostname and reject redirects. The application refuses live audits if this binding is absent. No safe-egress implementation is included yet.
 6. Private access policy for the entire preview Worker; avoid exposing the endpoint publicly, even with a bearer token.
 
 No values or secrets have been configured in the repository. The API fails closed if any of these required application settings are absent. The default health endpoint exposes only preview state.
