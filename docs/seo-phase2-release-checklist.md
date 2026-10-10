@@ -31,11 +31,14 @@ No values or secrets have been configured in the repository. The API fails close
 - Add DNS/IP-aware egress restrictions, then test DNS rebinding, CNAME-to-private, metadata IP, redirect-to-private, encoded IP variants, and IPv6.
 - Verify actual Cloudflare rate-limiter binding, access policy, outbound restrictions and real Worker deployment in isolated preview.
 - Check real owned pages with consent and compare findings against source HTML manually.
-- Offline report viewer and browser print/PDF are implemented; complete browser-based mobile, accessibility and end-to-end smoke tests before deployment.
+- Offline report viewer and browser print/PDF are implemented. Automated headless Chrome checks have verified offline upload, error handling, JSON export/import, URL preflight, a narrow viewport and HTML injection as literal text. Manual Safari/WebKit, keyboard/accessibility and actual print-to-PDF checks remain before deployment.
 - Only then discuss public launch. Do not merge this branch into production `main` or deploy to Worker `tech` until all release gates pass.
 
 ## CI
-`node --test tests/seo-*.test.mjs`
+- `node scripts/build-seo-standalone.mjs --check`
+- `node --test tests/seo-*.test.mjs`
+- `node scripts/seo-browser-smoke.mjs` (requires Chrome/Chromium)
+- Verified green run: https://github.com/ushaone/usha-one-technologies/actions/runs/38074977650 — 102 unit tests and 5 browser scenarios passed.
 
 ## Distinct release decisions
 - **Offline tools:** Can be considered for a static-assets-only release after current Actions success and a browser smoke test. They do not enable live auditing or require cloud API secrets.
