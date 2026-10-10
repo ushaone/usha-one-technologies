@@ -1,5 +1,5 @@
 // Real headless-browser smoke checks; no npm packages required.
-import {readFileSync,writeFileSync,mkdtempSync,rmSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdtempSync,rmSync,cpSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
@@ -26,6 +26,8 @@ function smoke(fileName,name,code,mobile=false){
   console.log('BROWSER PASS: '+name);
 }
 try{
+ // Serve the SEO and homepage test files with their real stylesheet, scripts and logos.
+ for(const folder of ['css','js','ASSETS'])cpSync(join(root,folder),join(temp,folder),{recursive:true});
  smoke('seo-offline-standalone.html','offline-upload',[
    'const transfer=new DataTransfer()',
    'transfer.items.add(new File(['+JSON.stringify(sample)+'],"sample.HTML",{type:"text/html"}))',
@@ -78,5 +80,29 @@ try{
    'if(window.innerWidth>600)throw Error("Narrow viewport not applied: "+window.innerWidth)',
    'if(document.documentElement.scrollWidth>document.documentElement.clientWidth+4)throw Error("Mobile horizontal overflow")',
    'if(getComputedStyle(document.getElementById("cards")).gridTemplateColumns.trim().split(/\\s+/).length!==1)throw Error("Mobile layout not one column")'
+ ].join(';'),true);
+
+ smoke('seo.html','seo-page-mobile-menu',[
+   'const toggle=document.querySelector(".menu-toggle"),nav=document.getElementById("seoNav")',
+   'if(!toggle||!nav)throw Error("SEO menu missing")',
+   'if(getComputedStyle(nav).display!=="none")throw Error("Menu should begin hidden on mobile")',
+   'toggle.click()',
+   'if(getComputedStyle(nav).display==="none")throw Error("Mobile SEO menu did not open")',
+   'if(toggle.getAttribute("aria-expanded")!=="true")throw Error("ARIA state not expanded")',
+   'document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true}))',
+   'if(getComputedStyle(nav).display!=="none"||toggle.getAttribute("aria-expanded")!=="false")throw Error("Escape did not close the menu")',
+   'toggle.click();nav.querySelector(\'a[href="#services"]\').click()',
+   'if(getComputedStyle(nav).display!=="none")throw Error("Selecting navigation did not close menu")',
+   'if(!document.querySelector(\'a[href="seo-offline-standalone.html"]\'))throw Error("Offline tool link missing")',
+   'if(document.documentElement.scrollWidth>document.documentElement.clientWidth+4)throw Error("SEO page horizontal overflow")'
+ ].join(';'),true);
+ smoke('index.html','home-seo-menu-mobile',[
+   'const seoLink=document.querySelector(\'a[href="seo.html"]\')',
+   'if(!seoLink)throw Error("Homepage SEO Services link missing")',
+   'const nav=document.querySelector(".nav-links"),toggle=document.querySelector(".menu-toggle")',
+   'if(getComputedStyle(nav).display!=="none")throw Error("Homepage menu must begin hidden")',
+   'toggle.click()',
+   'if(getComputedStyle(nav).display==="none")throw Error("Homepage mobile menu did not open")',
+   'if(document.documentElement.scrollWidth>document.documentElement.clientWidth+4)throw Error("Homepage horizontal overflow")'
  ].join(';'),true);
 }finally{rmSync(temp,{recursive:true,force:true})}
