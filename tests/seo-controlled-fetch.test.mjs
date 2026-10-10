@@ -26,3 +26,5 @@ test('rejects oversized streamed responses',async()=>{
 test('rejects unsupported timeout',async()=>{
  await assert.rejects(auditAllowedPage('https://www.example.org/',{allowedHosts,timeoutMs:11000,fetcher:fake()}),/timeout/);
 });
+
+test('requires explicit safe-egress fetcher and never uses global fetch',async()=>{await assert.rejects(auditAllowedPage('https://www.example.org/',{allowedHosts}),/Safe egress fetcher required/)});
