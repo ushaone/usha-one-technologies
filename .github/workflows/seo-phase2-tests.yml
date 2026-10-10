@@ -29,3 +29,5 @@ jobs:
         run: node scripts/build-seo-standalone.mjs --check
       - name: Run all SEO Phase 2 tests
         run: node --test tests/seo-*.test.mjs
+      - name: Smoke-test SEO tools in real headless Chrome
+        run: node scripts/seo-browser-smoke.mjs
