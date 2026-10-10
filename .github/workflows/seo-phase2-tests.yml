@@ -8,6 +8,8 @@ on:
       - 'seo-preflight.html'
       - 'seo-audit-report.html'
       - 'seo-offline-audit.html'
+      - 'seo-offline-standalone.html'
+      - 'scripts/**'
       - 'worker/**'
       - 'tests/**'
       - 'wrangler.seo-preview.jsonc'
@@ -23,5 +25,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Confirm standalone offline tool matches audited sources
+        run: node scripts/build-seo-standalone.mjs --check
       - name: Run all SEO Phase 2 tests
         run: node --test tests/seo-*.test.mjs
