@@ -23,6 +23,8 @@ function configured(env){
   const hosts=String(env?.AUDIT_ALLOWED_HOSTS||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
   // Explicitly approved public hostnames only. No wildcards, suffix matches or IPs.
   const allowedHosts=hosts.filter(host=>{const check=validateAuditUrl('https://'+host+'/');return check.ok&&host===check.hostname});
+  // Reject the entire configuration if any entry is malformed, rather than silently ignoring it.
+  if(allowedHosts.length!==hosts.length||new Set(allowedHosts).size!==allowedHosts.length)return null;
   return env?.ENABLE_PRIVATE_AUDIT==='true'&&typeof env?.AUDIT_PREVIEW_TOKEN==='string'&&env.AUDIT_PREVIEW_TOKEN.length>=24&&
     typeof env?.AUDIT_RATE_LIMITER?.limit==='function'&&
     typeof env?.AUDIT_SAFE_FETCH?.fetch==='function'&&allowedHosts.length>0?allowedHosts:null;
