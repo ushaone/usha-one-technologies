@@ -1,0 +1,14 @@
+{
+  // Preview-only deployment. Never replace production Worker "tech".
+  "name": "usha-seo-audit-preview",
+  "main": "worker/seo-audit-phase2.js",
+  "compatibility_date": "2026-10-10",
+  "workers_dev": true,
+  "vars": {
+    "ENABLE_PRIVATE_AUDIT": "false",
+    "AUDIT_ALLOWED_HOSTS": ""
+  },
+  "unsafe": {
+    // Do not add permissive outbound network bindings.
+  }
+}
