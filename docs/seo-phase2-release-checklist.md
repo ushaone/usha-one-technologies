@@ -12,7 +12,7 @@
 This is **not a production-ready public website crawler**. The exact hostname allowlist is not a substitute for DNS resolution and network-level egress protection against SSRF, DNS rebinding and private address destinations. There is no authenticated public dashboard, real-site verification, multi-page crawling, PageSpeed measurement, Search Console integration or PDF renderer. No numeric SEO score is claimed.
 
 ## Private preview configuration
-The committed preview configuration intentionally disables live crawling. To enable an **internal, controlled** preview in a security-reviewed environment, configure:
+The committed preview configuration intentionally disables live crawling. Do not enable it merely because offline unit tests pass. To enable an **internal, controlled** preview in a security-reviewed environment, configure:
 1. `ENABLE_PRIVATE_AUDIT=true` (only after controls below)
 2. `AUDIT_ALLOWED_HOSTS` as an explicit comma-separated set of owned, approved public domains (no wildcard).
 3. `AUDIT_PREVIEW_TOKEN` as a secret, never a checked-in variable or public browser token.
@@ -26,7 +26,7 @@ No values or secrets have been configured in the repository. The API fails close
 `POST /api/seo/audits` with JSON `{"url":"https://approved-owned-domain.example/path"}` and `Authorization: Bearer <private-preview-token>`. Successful response contains `status:complete`, `liveCrawl:true`, fetched timestamp, title, description, H1, canonical, robots meta, viewport, link counts and per-check observations. Disabled configuration returns HTTP 503. Invalid URL returns 400. Unapproved domain returns 403. Rate limit returns 429. Failed upstream returns 502 without upstream details.
 
 ## Security and release gates
-- Verify GitHub Actions is green for the latest commit.
+- Verify GitHub Actions is green for the latest commit. An empty GitHub commit-status response is NOT evidence that Actions passed; open the actual workflow run and inspect its conclusion.
 - Add DNS/IP-aware egress restrictions, then test DNS rebinding, CNAME-to-private, metadata IP, redirect-to-private, encoded IP variants, and IPv6.
 - Verify actual Cloudflare rate-limiter binding, access policy, outbound restrictions and real Worker deployment in isolated preview.
 - Check real owned pages with consent and compare findings against source HTML manually.
