@@ -8,19 +8,8 @@ on:
       - 'seo-preflight.html'
       - 'seo-audit-report.html'
       - 'seo-offline-audit.html'
-      - 'worker/seo-audit-phase2.js'
-      - 'worker/seo-html-analysis.mjs'
-      - 'worker/seo-controlled-fetch.mjs'
-      - 'tests/seo-preflight.test.mjs'
-      - 'tests/seo-audit-api.test.mjs'
-      - 'tests/seo-html-analysis.test.mjs'
-      - 'tests/seo-controlled-fetch.test.mjs'
-      - 'tests/seo-private-api.test.mjs'
-      - 'tests/seo-report.test.mjs'
-      - 'tests/seo-recommendations.test.mjs'
-      - 'tests/seo-configuration.test.mjs'
-      - 'tests/seo-offline-audit.test.mjs'
-      - 'worker/seo-recommendations.mjs'
+      - 'worker/**'
+      - 'tests/**'
       - 'wrangler.seo-preview.jsonc'
       - '.github/workflows/seo-phase2-tests.yml'
 permissions:
@@ -34,5 +23,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run SEO Phase 2 offline tests
-        run: node --test tests/seo-preflight.test.mjs tests/seo-audit-api.test.mjs tests/seo-html-analysis.test.mjs tests/seo-controlled-fetch.test.mjs tests/seo-private-api.test.mjs tests/seo-report.test.mjs tests/seo-recommendations.test.mjs tests/seo-configuration.test.mjs tests/seo-offline-audit.test.mjs
+      - name: Run all SEO Phase 2 tests
+        run: node --test tests/seo-*.test.mjs
