@@ -1,0 +1,9 @@
+
+{
+  "name": "tech",
+  "compatibility_date": "2026-10-10",
+  "assets": {
+    "directory": "./",
+    "html_handling": "auto-trailing-slash"
+  }
+}
