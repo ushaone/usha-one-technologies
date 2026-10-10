@@ -34,3 +34,5 @@ test('controlled fetch rejects explicit default HTTPS port without network acces
 for(const target of ['https://host.local/','https://service.internal/','https://localhost/','https://bad-.example.org/'])test('controlled fetch refuses forbidden hostname even when allowlisted: '+target,async()=>{let called=false;const hostname=new URL(target).hostname;await assert.rejects(auditAllowedPage(target,{allowedHosts:[hostname],fetcher:async()=>{called=true;throw Error('unexpected outbound call')}}));assert.equal(called,false)});
 
 for(const length of ['abc','-1','250001','1.5'])test('rejects invalid content-length '+length,async()=>{await assert.rejects(auditAllowedPage('https://www.example.org/',{allowedHosts,fetcher:fake(html,{headers:{'content-type':'text/html','content-length':length}})}),/content length/)});
+
+for(const length of ['',' 5','05','+5','5.0'])test('rejects noncanonical content-length '+JSON.stringify(length),async()=>{await assert.rejects(auditAllowedPage('https://www.example.org/',{allowedHosts,fetcher:fake(html,{headers:{'content-type':'text/html','content-length':length}})}),/content length/)});
