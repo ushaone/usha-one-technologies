@@ -11,7 +11,7 @@ export function validateAuditUrl(input){
   let u;try{u=new URL(input)}catch{return {ok:false,error:'Invalid absolute URL'}}
   if(u.protocol!=='https:')return {ok:false,error:'HTTPS is required'};
   if(u.username||u.password)return {ok:false,error:'Credentials are not allowed'};
-  if(u.port)return {ok:false,error:'Custom ports are not allowed'};
+  if(u.port||/:443(?:[/?#]|$)/i.test(input))return {ok:false,error:'Explicit ports are not allowed'};
   if(u.hash)return {ok:false,error:'URL fragments are not allowed'};
   const host=u.hostname.toLowerCase();
   if(!host||host.length>253||!host.includes('.')||host.endsWith('.')||blockedSuffix.test(host))return {ok:false,error:'Hostname is not eligible'};
