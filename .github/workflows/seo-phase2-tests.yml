@@ -1,0 +1,23 @@
+name: SEO Phase 2 checks
+on:
+  push:
+    branches:
+      - seo-audit-engine-phase2
+  pull_request:
+    paths:
+      - 'seo-preflight.html'
+      - 'tests/seo-preflight.test.mjs'
+      - '.github/workflows/seo-phase2-tests.yml'
+permissions:
+  contents: read
+jobs:
+  preflight-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run offline SEO preflight tests
+        run: node --test tests/seo-preflight.test.mjs
