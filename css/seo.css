@@ -1,0 +1,21 @@
+/* USHA ONE SEO premium page — scoped to SEO classes */
+.seo-hero{position:relative;overflow:hidden;background:radial-gradient(circle at 85% 15%,#1a4261 0%,transparent 40%),linear-gradient(120deg,#06111f,#102b47);color:#fff;padding:100px 0 90px}
+.seo-hero:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff07 1px,transparent 1px),linear-gradient(90deg,#ffffff07 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+.seo-hero-grid{position:relative;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:65px}
+.seo-hero .kicker{color:#f1b43c}.seo-hero h1{font-size:clamp(44px,5.2vw,76px);letter-spacing:-.055em;line-height:1.07;margin:20px 0 25px}.seo-hero h1 em{font-style:normal;color:#f0b33c}
+.seo-hero p{color:#c8d5e3;line-height:1.8;font-size:17px;max-width:660px}.seo-actions{display:flex;gap:14px;flex-wrap:wrap;margin:30px 0}.seo-note{font-size:12px!important;color:#9fb3c8!important}
+.seo-hero-panel{background:linear-gradient(145deg,#fff,#edf2f7);border:1px solid #ffffff99;border-radius:28px;box-shadow:0 35px 85px #0006;padding:42px 32px;text-align:center}
+.seo-hero-panel img{width:100%;max-width:370px;max-height:250px;object-fit:contain;margin:0 auto}.seo-panel-caption{margin-top:22px;padding-top:22px;border-top:1px solid #dce4ed;color:#1a3653;font-size:11px;font-weight:850;letter-spacing:.11em}.seo-panel-caption span{color:#c18a1e}
+#services h2,#process h2,#enquiry h2{font-size:clamp(34px,3.8vw,54px);letter-spacing:-.04em;line-height:1.1;margin:12px 0 22px}
+.seo-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.seo-service{position:relative;background:white;border:1px solid #e3e9ef;border-radius:20px;padding:32px;box-shadow:0 16px 35px #091e3510;transition:transform .25s,box-shadow .25s;overflow:hidden}
+.seo-service:before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#d99418,#f7c95d)}
+.seo-service:hover{transform:translateY(-6px);box-shadow:0 25px 55px #091e3525}.seo-service>span{font-size:11px;color:#ae781b;letter-spacing:.12em;font-weight:900}.seo-service h3{font-size:22px;margin:20px 0 12px;color:#0c2036}.seo-service p{color:#607184;line-height:1.7;margin:0;font-size:14px}
+.seo-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:38px}.seo-steps>div{background:white;border:1px solid #e2e8f0;border-radius:17px;padding:26px;box-shadow:0 12px 25px #06162a0b}.seo-steps b{font-size:27px;color:#d39725}.seo-steps h3{color:#0c2036}.seo-steps p{font-size:14px;line-height:1.65;color:#66778a}
+#enquiry{background:linear-gradient(125deg,#061525,#0f2d4a);color:white}#enquiry .kicker{color:#f2b742}#enquiry h2{color:white}#enquiry p{color:#bdcddd;line-height:1.8}#enquiry .seo-phone{color:#f5bd4b;font-weight:800}
+.seo-enquiry-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:75px;align-items:start}
+.seo-form{background:#fff;color:#0c2036;border-radius:23px;padding:36px;box-shadow:0 30px 80px #0004;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.seo-field{display:flex;flex-direction:column;gap:9px}.seo-field label{font-size:13px;font-weight:800;color:#263b52}.seo-field input,.seo-field select{width:100%;height:50px;border:1px solid #d8e1eb;border-radius:10px;background:#f8fafc;padding:0 14px;font:inherit;font-size:14px;color:#0c2036;min-width:0}
+.seo-field input:focus,.seo-field select:focus{outline:2px solid #e6b44e;outline-offset:1px;background:#fff}
+.seo-form>.btn,.seo-form-hint,#seoPreviewResult,#seoDownloadChecklist{grid-column:1/-1}.seo-form>.btn{border:0;cursor:pointer}.seo-form-hint{font-size:12px!important;color:#607184!important;margin:0!important}#seoPreviewResult{padding:18px;border-radius:12px;background:#f2f6fa;color:#15314b;white-space:pre-wrap;line-height:1.7}#seoDownloadChecklist{color:#122a45;border-color:#d8a53b;cursor:pointer}
+@media(max-width:950px){.seo-hero-grid,.seo-enquiry-grid{grid-template-columns:1fr;gap:35px}.seo-card-grid{grid-template-columns:repeat(2,1fr)}.seo-steps{grid-template-columns:repeat(2,1fr)}.seo-hero{padding:65px 0}}
+@media(max-width:620px){.seo-card-grid,.seo-steps,.seo-form{grid-template-columns:1fr}.seo-form{padding:24px}.seo-hero h1{font-size:44px}.seo-hero-panel{padding:25px}.seo-hero{padding:55px 0}.seo-actions .btn{width:100%}}
