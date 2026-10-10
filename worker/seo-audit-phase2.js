@@ -1,6 +1,7 @@
 // Isolated SEO Phase 2 API. Fail-closed: scanning is disabled unless explicitly configured.
 // This endpoint is for PRIVATE preview, not public arbitrary-domain auditing.
 import { auditAllowedPage } from './seo-controlled-fetch.mjs';
+import { buildSeoRecommendations } from './seo-recommendations.mjs';
 
 const headers={'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'};
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers});
@@ -50,7 +51,7 @@ export default {
     if(!rate?.success)return json({error:'Audit rate limit exceeded'},429);
     try{
       const analysis=await auditAllowedPage(result.url,{allowedHosts,fetcher:(url,options)=>env.AUDIT_SAFE_FETCH.fetch(url,options)});
-      return json({status:'complete',liveCrawl:true,...analysis});
+      return json({status:'complete',liveCrawl:true,...analysis,...buildSeoRecommendations(analysis)});
     }catch{
       // Avoid exposing upstream response or network internals to unauthenticated clients.
       return json({status:'failed',liveCrawl:false,checks:[],message:'Audit fetch failed or was rejected.'},502);
