@@ -18,7 +18,7 @@ The committed preview configuration intentionally disables live crawling. Do not
 2. `AUDIT_ALLOWED_HOSTS` as an explicit comma-separated set of owned, approved public domains (no wildcard).
 3. `AUDIT_PREVIEW_TOKEN` as a secret, never a checked-in variable or public browser token.
 4. `AUDIT_RATE_LIMITER` as a globally enforced rate limiter with `limit({key})` returning `{success:boolean}`.
-5. Mandatory `AUDIT_SAFE_FETCH` binding exposing `fetch(url, options)` through a separately audited safe-egress service. This service must verify public DNS and final destination IP at connection time, block private/reserved ranges and rebinding, enforce the exact approved hostname and reject redirects. The application refuses live audits if this binding is absent. No safe-egress implementation is included yet. The controlled fetch helper now also requires an explicitly injected fetcher; it cannot fall back to global fetch. This is defense in depth, not proof of DNS/IP-level SSRF protection.
+5. Mandatory `AUDIT_SAFE_FETCH` binding exposing `fetch(url, options)` through a separately audited safe-egress service. This service must verify public DNS and final destination IP at connection time, block private/reserved ranges and rebinding, enforce the exact approved hostname and reject redirects. The application refuses live audits if this binding is absent. A separate, test-covered Node.js safe-egress **core** now exists in `gateway/seo-safe-egress.mjs` (CNAME/public IPv4 validation, IPv6 deny-by-default, IP-pinned TLS, redirects denied and bounded HTML). It is not a deployed Cloudflare binding, has not been independently audited, and has no verified network firewall. The operational safe-egress gateway is therefore still missing. The controlled fetch helper now also requires an explicitly injected fetcher; it cannot fall back to global fetch. This is defense in depth, not proof of DNS/IP-level SSRF protection.
 6. Private access policy for the entire preview Worker; avoid exposing the endpoint publicly, even with a bearer token.
 
 No values or secrets have been configured in the repository. The API fails closed if any of these required application settings are absent. The default health endpoint exposes only preview state.
@@ -45,3 +45,12 @@ No values or secrets have been configured in the repository. The API fails close
 - **Offline tools:** Can be considered for a static-assets-only release after current Actions success and a browser smoke test. They do not enable live auditing or require cloud API secrets.
 - **Private live API:** Continue to keep disabled. Its safe-egress gateway, rate limiter, private access controls and isolated deployment have not been verified.
 - **Public live crawling:** Blocked until separate threat model, DNS/IP and operational checks are complete. Do not claim a release date or production readiness from unit tests alone.
+
+## 11 October 2026 engineering update
+- Input body handling now caps streaming/chunked JSON at 4096 bytes rather than buffering unlimited request text.
+- Padded default-port URL variants are rejected in both entrypoint and controlled fetch.
+- Adversarial URL, authorization, no-redirect, no-CORS, DNS/CNAME/IP, gateway pinning and unsafe-egress regression suites were added. Mock-based tests do not prove deployed gateway security.
+- CI adds Chromium semantic/keyboard/mobile checks and macOS Playwright WebKit mobile/file export/import smoke (WebKit is not native iOS Safari).
+- The report viewer now describes imported live-HTML claims as unverified rather than authorized.
+- Cloudflare Workers native rate-limiting bindings are per-location and eventually consistent, **not globally exact**; an independently shared quota/concurrency mechanism remains necessary.
+- The deployment/rollback plan is in `docs/seo-phase2-production-release-runbook.md`. Continue to require actual production deployment authorization.
