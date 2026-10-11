@@ -49,13 +49,13 @@ jobs:
               z.write('seo-audit-report.html', 'seo-audit-report.html')
               z.write('tests/fixtures/seo-example-page.html', 'sample-page.html')
               z.writestr('README-FIRST.txt', (
-                  'USHA ONE TECHNOLOGIES - OFFLINE SEO TOOLKIT\\n'
-                  '1. Open seo-offline-standalone.html in your browser.\\n'
-                  '2. Enter the original page URL, and choose a saved .html file.\\n'
-                  '3. Select sample-page.html to try the included example.\\n'
-                  '4. Analyze HTML and download the JSON report.\\n'
-                  '5. Open seo-audit-report.html, import that JSON, then Print / Save PDF.\\n'
-                  'This toolkit never crawls live websites and measures no rankings, indexing or page speed.\\n'
+                  'USHA ONE TECHNOLOGIES - OFFLINE SEO TOOLKIT\n'
+                  '1. Open seo-offline-standalone.html in your browser.\n'
+                  '2. Enter the original page URL, and choose a saved .html file.\n'
+                  '3. Select sample-page.html to try the included example.\n'
+                  '4. Analyze HTML and download the JSON report.\n'
+                  '5. Open seo-audit-report.html, import that JSON, then Print / Save PDF.\n'
+                  'This toolkit never crawls live websites and measures no rankings, indexing or page speed.\n'
               ))
           with ZipFile(output) as z:
               assert set(z.namelist()) == {
