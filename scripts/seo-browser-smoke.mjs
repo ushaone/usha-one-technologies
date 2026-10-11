@@ -69,6 +69,40 @@ try{
    'if(!document.getElementById("grid").textContent.includes("Live crawl / indexing"))throw Error("Missing limitations")'
  ].join(';'));
 
+
+ smoke('seo-offline-standalone.html','offline-overlimit',[
+   'const transfer=new DataTransfer()',
+   'transfer.items.add(new File(["x".repeat(250001)],"oversize.html",{type:"text/html"}))',
+   'document.getElementById("htmlFile").files=transfer.files',
+   'document.getElementById("pageUrl").value="https://www.example.org/"',
+   'document.getElementById("analyze").click()',
+   'if(!document.getElementById("status").textContent.includes("exceeds 250 KB"))throw Error("Oversized HTML was not rejected")',
+   'if(!document.getElementById("results").classList.contains("hidden"))throw Error("Oversized file produced results")'
+ ].join(';'));
+ smoke('seo-offline-standalone.html','offline-wrong-extension',[
+   'const transfer=new DataTransfer()',
+   'transfer.items.add(new File(["<h1>Hello</h1>"],"page.txt",{type:"text/plain"}))',
+   'document.getElementById("htmlFile").files=transfer.files',
+   'document.getElementById("pageUrl").value="https://www.example.org/"',
+   'document.getElementById("analyze").click()',
+   'if(!document.getElementById("status").textContent.includes("Choose an .html or .htm file"))throw Error("Unsupported extension was accepted")',
+   'if(!document.getElementById("results").classList.contains("hidden"))throw Error("Unsupported file produced results")'
+ ].join(';'));
+ smoke('seo-audit-report.html','report-rejects-invalid-json',[
+   'const picker=document.getElementById("file"),transfer=new DataTransfer()',
+   'transfer.items.add(new File(["{not JSON"],"broken.json",{type:"application/json"}))',
+   'picker.files=transfer.files;picker.dispatchEvent(new Event("change"))',
+   'await waitFor(()=>document.getElementById("error").textContent.includes("Invalid JSON report"))',
+   'if(!document.getElementById("report").classList.contains("hidden")||!document.getElementById("print").disabled)throw Error("Invalid JSON report rendered or printed")'
+ ].join(';'));
+ smoke('seo-audit-report.html','report-rejects-overlimit',[
+   'const picker=document.getElementById("file"),transfer=new DataTransfer()',
+   'transfer.items.add(new File(["x".repeat(100001)],"too-large.json",{type:"application/json"}))',
+   'picker.files=transfer.files;picker.dispatchEvent(new Event("change"))',
+   'if(!document.getElementById("error").textContent.includes("under 100 KB"))throw Error("Oversized report not rejected")',
+   'if(!document.getElementById("report").classList.contains("hidden")||!document.getElementById("print").disabled)throw Error("Oversized report rendered or printed")'
+ ].join(';'));
+
  smoke('seo-audit-report.html','mobile-xss-report',[
    'const danger="<img src=x onerror=alert(1)>"',
    'const data={status:"complete",source:"offline-html",liveCrawl:false,url:"https://www.example.org/",observations:[{key:"title",status:"observed",value:danger}],title:danger,h1:[danger],h1Count:1,recommendations:[]}',
