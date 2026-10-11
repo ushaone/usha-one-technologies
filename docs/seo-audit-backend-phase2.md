@@ -61,3 +61,10 @@ Application deadlines cover request body (2s), admission including JSON response
 Required infrastructure evidence before enabling: actual gateway deployment and identity, deny-private firewall, signed or authenticated admission/deadline propagation to gateway, no delayed fetch after lease expiry, cross-location saturation and storage failure tests, and real TLS/IP/DNS-rebinding negative tests. Gateway ingress/adapter implementation depends on the selected host/network and identity mechanism; none is provisioned in this repository. Keep the flag false.
 
 Cloudflare references: https://developers.cloudflare.com/durable-objects/api/namespace/ and https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/ . The latter documents strongly consistent transactional storage; runtime evidence is still required.
+
+## Live-audit continuation — 12 October 2026
+
+The public static toolkit has been released separately. The live preview flag remains false.
+The Node egress core now uses one monotonic total budget for DNS and HTTPS/body retrieval: DNS time reduces the dial budget, a timed-out lookup cannot start a late connection, and a stalled dial adapter cannot leave its caller waiting indefinitely. The native dial still destroys its request on expiry. Regression tests cover these boundaries; they are not infrastructure certification.
+
+Deployment blockers confirmed in this environment: Wrangler reports not authenticated; no connected Cloudflare management tool or provisioned gateway host is available. The Node module is a core library, not a running HTTP gateway or Worker service binding. A gateway host with configurable outbound firewall, authenticated ingress/Worker adapter, admitted-request deadline propagation and real cross-location/network tests is still required. A temporary anonymous Worker is not a substitute. Do not enable scanning or introduce billing/account changes to bypass these requirements.

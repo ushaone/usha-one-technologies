@@ -49,7 +49,11 @@ test('pins the validated address into the only dial invocation',async()=>{
     dial:async(url,options)=>{calls.push({url,options});return new Response('OK')}
   });
   assert.equal(await response.text(),'OK');
-  assert.deepEqual(calls,[{url:'https://www.example.org/path',options:{hostname:'www.example.org',address:'8.8.8.8',timeoutMs:5000}}]);
+  assert.equal(calls.length,1);
+  assert.equal(calls[0].url,'https://www.example.org/path');
+  assert.equal(calls[0].options.hostname,'www.example.org');
+  assert.equal(calls[0].options.address,'8.8.8.8');
+  assert.ok(calls[0].options.timeoutMs>0&&calls[0].options.timeoutMs<=5000);
 });
 test('unsafe resolver result cannot reach dial even if resolver is compromised',async()=>{
   let called=false;
@@ -73,4 +77,32 @@ test('dial rejects bad pinned address and hostname mismatch before any socket',a
   await assert.rejects(fetchPinnedHtml('https://www.example.org/',{
     hostname:'unapproved.example.org',address:'8.8.8.8'
   }),/mismatch/);
+});
+
+test('DNS delay consumes the same total egress budget',async()=>{
+  let remaining;
+  await safeFetchPublicHtml('https://www.example.org/',{
+    allowedHosts:['www.example.org'],timeoutMs:200,
+    resolver:async()=>{await new Promise(r=>setTimeout(r,30));return {address:'8.8.8.8'}},
+    dial:async(_,options)=>{remaining=options.timeoutMs;return new Response('OK')}
+  });
+  assert.ok(remaining>0&&remaining<=180);
+});
+test('expired DNS cannot initiate a late connection',async()=>{
+  let resolveDns,called=false;
+  const result=safeFetchPublicHtml('https://www.example.org/',{
+    allowedHosts:['www.example.org'],timeoutMs:20,
+    resolver:()=>new Promise(r=>{resolveDns=r}),
+    dial:async()=>{called=true;return new Response('OK')}
+  });
+  await assert.rejects(result,/total deadline/);
+  resolveDns({address:'8.8.8.8'});
+  await new Promise(r=>setImmediate(r));
+  assert.equal(called,false);
+});
+test('a stalled dial adapter cannot leave the caller waiting forever',async()=>{
+  await assert.rejects(safeFetchPublicHtml('https://www.example.org/',{
+    allowedHosts:['www.example.org'],timeoutMs:20,
+    resolver:async()=>({address:'8.8.8.8'}),dial:()=>new Promise(()=>{})
+  }),/total deadline/);
 });

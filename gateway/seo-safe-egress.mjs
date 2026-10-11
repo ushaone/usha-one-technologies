@@ -5,6 +5,8 @@
 import {resolveCname,resolve4,resolve6} from 'node:dns/promises';
 import {request as httpsRequest} from 'node:https';
 import {isIP} from 'node:net';
+import {performance} from 'node:perf_hooks';
+import {deadline} from '../worker/seo-deadline.mjs';
 import {validateAuditUrl} from '../worker/seo-audit-phase2.js';
 
 const MAX_HTML_BYTES=250_000;
@@ -100,12 +102,17 @@ export async function safeFetchPublicHtml(input,{
   if(!parsed.ok||!allowedHosts.includes(parsed.hostname))throw Error('Host is not explicitly approved');
   if(typeof resolver!=='function'||typeof dial!=='function')throw Error('Safe egress functions required');
   if(!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>10000)throw Error('Invalid request timeout');
-  // Bound DNS resolution, too. The Node HTTPS dial enforces its own hard deadline.
-  let timer;
-  const destination=await Promise.race([
-    Promise.resolve().then(()=>resolver(parsed.hostname)),
-    new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('DNS resolution deadline exceeded')),timeoutMs)})
-  ]).finally(()=>clearTimeout(timer));
-  if(!destination||!isPublicIPv4(destination.address))throw Error('Unsafe resolved address');
-  return dial(parsed.url,{hostname:parsed.hostname,address:destination.address,timeoutMs});
+  // One total budget: DNS time must reduce the remaining TCP/TLS/body time.
+  // Racing DNS also prevents a late resolver from initiating a new connection.
+  const started=performance.now();
+  const budget=deadline(timeoutMs,'Egress total deadline exceeded');
+  try{
+    const destination=await budget.wait(Promise.resolve().then(()=>resolver(parsed.hostname)));
+    if(!destination||!isPublicIPv4(destination.address))throw Error('Unsafe resolved address');
+    const remaining=Math.floor(timeoutMs-(performance.now()-started));
+    if(remaining<1)throw Error('Egress total deadline exceeded');
+    return await budget.wait(dial(parsed.url,{
+      hostname:parsed.hostname,address:destination.address,timeoutMs:remaining
+    }));
+  }finally{budget.clear()}
 }
