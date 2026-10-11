@@ -76,3 +76,18 @@ jobs:
           path: dist/usha-one-seo-offline-toolkit.zip
           retention-days: 30
           if-no-files-found: error
+
+  webkit-smoke:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Playwright WebKit test runtime
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install webkit
+      - name: Run actual WebKit mobile, keyboard, export and import tests
+        run: node scripts/seo-webkit-smoke.mjs
