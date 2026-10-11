@@ -61,7 +61,8 @@ export async function fetchPinnedHtml(url,{hostname,address,timeoutMs=5000}){
   if(u.protocol!=='https:'||u.hostname!==hostname||u.port||u.username||u.password||u.hash)throw Error('Pinned destination mismatch');
   return new Promise((resolve,reject)=>{
     let settled=false;
-    const done=(err,value)=>{if(settled)return;settled=true;err?reject(err):resolve(value)};
+    const deadline=setTimeout(()=>req.destroy(Error('Egress total deadline exceeded')),timeoutMs);
+    const done=(err,value)=>{if(settled)return;settled=true;clearTimeout(deadline);err?reject(err):resolve(value)};
     const req=httpsRequest(u,{
       method:'GET',agent:false,autoSelectFamily:false,family:4,servername:hostname,
       rejectUnauthorized:true,maxHeaderSize:8192,
@@ -98,8 +99,12 @@ export async function safeFetchPublicHtml(input,{
   if(!parsed.ok||!allowedHosts.includes(parsed.hostname))throw Error('Host is not explicitly approved');
   if(typeof resolver!=='function'||typeof dial!=='function')throw Error('Safe egress functions required');
   if(!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>10000)throw Error('Invalid request timeout');
-  // The actual connector must have a separate hard deadline covering DNS plus TLS plus response.
-  const destination=await resolver(parsed.hostname);
+  // Bound DNS resolution, too. The Node HTTPS dial enforces its own hard deadline.
+  let timer;
+  const destination=await Promise.race([
+    Promise.resolve().then(()=>resolver(parsed.hostname)),
+    new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('DNS resolution deadline exceeded')),timeoutMs)})
+  ]).finally(()=>clearTimeout(timer));
   if(!destination||!isPublicIPv4(destination.address))throw Error('Unsafe resolved address');
   return dial(parsed.url,{hostname:parsed.hostname,address:destination.address,timeoutMs});
 }
