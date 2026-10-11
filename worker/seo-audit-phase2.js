@@ -11,13 +11,30 @@ export function validateAuditUrl(input){
   let u;try{u=new URL(input)}catch{return {ok:false,error:'Invalid absolute URL'}}
   if(u.protocol!=='https:')return {ok:false,error:'HTTPS is required'};
   if(u.username||u.password)return {ok:false,error:'Credentials are not allowed'};
-  if(u.port||/^https:\/\/[^/?#]*:443(?:[/?#]|$)/i.test(input))return {ok:false,error:'Explicit ports are not allowed'};
+  if(u.port||/^https:\/\/[^/?#]*:[0-9]+(?:[/?#]|$)/i.test(input))return {ok:false,error:'Explicit ports are not allowed'};
   if(u.hash)return {ok:false,error:'URL fragments are not allowed'};
   const host=u.hostname.toLowerCase();
   if(!host||host.length>253||!host.includes('.')||host.endsWith('.')||blockedSuffix.test(host))return {ok:false,error:'Hostname is not eligible'};
   if(host.startsWith('[')||/^\d+(?:\.\d+){3}$/.test(host)||/^0x/i.test(host)||/^\d+$/.test(host))return {ok:false,error:'IP address literals are not allowed'};
   if(!/^[a-z0-9.-]+$/.test(host)||host.split('.').some(part=>!part||part.length>63||part.startsWith('-')||part.endsWith('-')))return {ok:false,error:'Invalid hostname'};
   return {ok:true,url:u.href,hostname:host};
+}
+// Read incrementally: chunked bodies without Content-Length must never be buffered unbounded.
+async function readBoundedBody(request){
+  if(!request.body)return '';
+  const reader=request.body.getReader();const chunks=[];let total=0;
+  try{
+    while(true){
+      const {done,value}=await reader.read();
+      if(done)break;
+      total+=value.byteLength;
+      if(total>4096){const error=new Error('Payload too large');error.status=413;throw error}
+      chunks.push(value);
+    }
+  }finally{await reader.cancel().catch(()=>{})}
+  const bytes=new Uint8Array(total);let offset=0;
+  for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength}
+  return new TextDecoder('utf-8',{fatal:true}).decode(bytes);
 }
 function configured(env){
   const hosts=typeof env?.AUDIT_ALLOWED_HOSTS==='string'?env.AUDIT_ALLOWED_HOSTS.split(',').map(s=>s.trim().toLowerCase()):[];
@@ -38,8 +55,7 @@ export default {
     const type=request.headers.get('content-type')||'';
     if(!/^application\/json(?:\s*;|\s*$)/i.test(type))return json({error:'application/json required'},415);
     if(Number(request.headers.get('content-length')||0)>4096)return json({error:'Payload too large'},413);
-    let raw;try{raw=await request.text()}catch{return json({error:'Unable to read request'},400)}
-    if(raw.length>4096)return json({error:'Payload too large'},413);
+    let raw;try{raw=await readBoundedBody(request)}catch(error){return error?.status===413?json({error:'Payload too large'},413):json({error:'Unable to read request'},400)}
     let payload;try{payload=JSON.parse(raw)}catch{return json({error:'Invalid JSON'},400)}
     if(!payload||Array.isArray(payload)||typeof payload!=='object')return json({error:'Expected object'},400);
     const result=validateAuditUrl(payload.url);
