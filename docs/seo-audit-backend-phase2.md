@@ -50,3 +50,14 @@ Do not deploy the backend to production until all security tests pass, the deplo
 **Verified scope:** application-level input/body bounds, explicit host validation, bearer token, fail-closed binding checks, rate-limit adapter handling, and no automatic redirect following have Node regression coverage. **Not verified:** actual DNS/CNAME chain validation, TLS/IP pinning, gateway firewall, globally shared quotas, external identity controls, and isolated deployment. Mocked fetch tests cannot stand in for those network-layer acceptance tests.
 
 **Decision:** leave `ENABLE_PRIVATE_AUDIT=false` and `AUDIT_ALLOWED_HOSTS=""` until gateway infrastructure and security review are complete. Do not publish live scanning or market simulated results as measured live results.
+
+## Shared admission and deadline implementation — 11 October 2026
+The private Worker requires `AUDIT_ADMISSION` instead of the former generic `AUDIT_RATE_LIMITER` adapter. It uses one fixed Durable Object ID for all callers and destinations. `worker/seo-admission.mjs` stores admissions and leases in a storage transaction; no per-isolate map or per-location rate-limit binding is accepted as a substitute. The preview-only migration declares a SQLite class. No production configuration changes.
+
+The coordinator permits two outstanding 30-second leases and at most ten starts in a rolling minute. Slots are deliberately NOT released early, including on success: aborting a Worker promise does not prove a remote gateway stopped. This can reduce actual throughput below ten/minute. The gateway must independently enforce a total lifetime shorter than 30 seconds, including ingress/queue delay; reject stale admissions, and prevent direct unauthenticated access. Those controls cannot be inferred from this unit-tested coordinator.
+
+Application deadlines cover request body (2s), admission including JSON response (2s), and HTML fetch/body (5s), including hung adapters and streams. The isolated Node core retains bounded DNS and HTTPS operations, deny-by-default IPv6, original-host SNI/certificate validation and a pinned public IPv4 lookup. The Worker never substitutes native fetch for a missing safe-egress service.
+
+Required infrastructure evidence before enabling: actual gateway deployment and identity, deny-private firewall, signed or authenticated admission/deadline propagation to gateway, no delayed fetch after lease expiry, cross-location saturation and storage failure tests, and real TLS/IP/DNS-rebinding negative tests. Gateway ingress/adapter implementation depends on the selected host/network and identity mechanism; none is provisioned in this repository. Keep the flag false.
+
+Cloudflare references: https://developers.cloudflare.com/durable-objects/api/namespace/ and https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/ . The latter documents strongly consistent transactional storage; runtime evidence is still required.

@@ -11,6 +11,7 @@ on:
       - 'seo-offline-standalone.html'
       - 'scripts/**'
       - 'worker/**'
+      - 'gateway/**'
       - 'tests/**'
       - 'wrangler.seo-preview.jsonc'
       - '.github/workflows/seo-phase2-tests.yml'

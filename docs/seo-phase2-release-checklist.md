@@ -17,7 +17,7 @@ The committed preview configuration intentionally disables live crawling. Do not
 1. `ENABLE_PRIVATE_AUDIT=true` (only after controls below)
 2. `AUDIT_ALLOWED_HOSTS` as an explicit comma-separated set of owned, approved public domains (no wildcard).
 3. `AUDIT_PREVIEW_TOKEN` as a secret, never a checked-in variable or public browser token.
-4. `AUDIT_RATE_LIMITER` as a globally enforced rate limiter with `limit({key})` returning `{success:boolean}`.
+4. `AUDIT_ADMISSION` namespace bound to `SeoAuditAdmission`, always addressed as `seo-private-global-v1`. Transactional storage enforces a rolling 10/minute ceiling and two 30-second admission leases. The 30-second hold is deliberately conservative (successful calls also retain it). Code/migration exist; real deployment and cross-location behavior remain unverified.
 5. Mandatory `AUDIT_SAFE_FETCH` binding exposing `fetch(url, options)` through a separately audited safe-egress service. This service must verify public DNS and final destination IP at connection time, block private/reserved ranges and rebinding, enforce the exact approved hostname and reject redirects. The application refuses live audits if this binding is absent. A separate, test-covered Node.js safe-egress **core** now exists in `gateway/seo-safe-egress.mjs` (CNAME/public IPv4 validation, IPv6 deny-by-default, IP-pinned TLS, redirects denied and bounded HTML). It is not a deployed Cloudflare binding, has not been independently audited, and has no verified network firewall. The operational safe-egress gateway is therefore still missing. The controlled fetch helper now also requires an explicitly injected fetcher; it cannot fall back to global fetch. This is defense in depth, not proof of DNS/IP-level SSRF protection.
 6. Private access policy for the entire preview Worker; avoid exposing the endpoint publicly, even with a bearer token.
 
@@ -29,7 +29,7 @@ No values or secrets have been configured in the repository. The API fails close
 ## Security and release gates
 - Verify GitHub Actions is green for the latest commit. An empty GitHub commit-status response is NOT evidence that Actions passed; open the actual workflow run and inspect its conclusion.
 - Add DNS/IP-aware egress restrictions, then test DNS rebinding, CNAME-to-private, metadata IP, redirect-to-private, encoded IP variants, and IPv6.
-- Verify actual Cloudflare rate-limiter binding, access policy, outbound restrictions and real Worker deployment in isolated preview.
+- Verify actual Cloudflare shared admission binding, access policy, outbound restrictions and real Worker deployment in isolated preview.
 - Check real owned pages with consent and compare findings against source HTML manually.
 - Offline report viewer and browser print/PDF are implemented. Automated headless Chrome checks have verified offline upload, error handling, JSON export/import, URL preflight, a narrow viewport and HTML injection as literal text. Automated Print-to-PDF now generates and checks an actual PDF in Chrome. Manual Safari/WebKit, keyboard/accessibility and physical-device PDF printing remain before deployment.
 - Only then discuss public launch. Do not merge this branch into production `main` or deploy to Worker `tech` until all release gates pass.
@@ -52,5 +52,14 @@ No values or secrets have been configured in the repository. The API fails close
 - Adversarial URL, authorization, no-redirect, no-CORS, DNS/CNAME/IP, gateway pinning and unsafe-egress regression suites were added. Mock-based tests do not prove deployed gateway security.
 - CI adds Chromium semantic/keyboard/mobile checks and macOS Playwright WebKit mobile/file export/import smoke (WebKit is not native iOS Safari).
 - The report viewer now describes imported live-HTML claims as unverified rather than authorized.
-- Cloudflare Workers native rate-limiting bindings are per-location and eventually consistent, **not globally exact**; an independently shared quota/concurrency mechanism remains necessary.
+- Cloudflare Workers native rate-limiting bindings are per-location and eventually consistent, **not globally exact**; the new Durable Object admission implementation still requires deployed cross-location verification.
 - The deployment/rollback plan is in `docs/seo-phase2-production-release-runbook.md`. Continue to require actual production deployment authorization.
+
+## Completion-agent hardening (11 October 2026)
+- 174 Node tests pass locally, including 14 new deadline/admission cases. Consult the latest Actions conclusion for CI evidence.
+- Request bodies (2s), admission calls (2s), and HTML fetch plus stream consumption (5s) now have Promise-level deadlines even when adapters ignore AbortSignal. Cancellation is requested without awaiting a stuck cancellation promise.
+- Authentication precedes body consumption for configured private endpoints.
+- Shared admission fails closed on absent bindings, storage outage, malformed leases and saturation. Its transaction model is unit-tested, not a substitute for Cloudflare runtime verification.
+- Preview config adds only its own SQLite Durable Object migration. Live audit remains false, allowlist empty, and safe-egress binding absent.
+- WebKit CI now adds 360/420/768/1440px layouts and real Tab input across all five pages to the existing 390px upload/export/import flow.
+- This workspace has no installed browser executable. Fresh browser verification is delegated to the existing Actions jobs, not claimed as a local pass.

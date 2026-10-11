@@ -4,6 +4,8 @@
   "main": "worker/seo-audit-phase2.js",
   "compatibility_date": "2026-10-10",
   "workers_dev": true,
+  "durable_objects": {"bindings": [{"name": "AUDIT_ADMISSION", "class_name": "SeoAuditAdmission"}]},
+  "migrations": [{"tag": "seo-admission-v1", "new_sqlite_classes": ["SeoAuditAdmission"]}],
   "vars": {
     "ENABLE_PRIVATE_AUDIT": "false",
     "AUDIT_ALLOWED_HOSTS": ""

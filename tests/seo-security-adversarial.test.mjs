@@ -9,7 +9,7 @@ const endpoint='https://preview.invalid/api/seo/audits';
 const html='<html><head><title>Test</title></head><body><h1>OK</h1></body></html>';
 const env={
   ENABLE_PRIVATE_AUDIT:'true',AUDIT_PREVIEW_TOKEN:token,AUDIT_ALLOWED_HOSTS:approved,
-  AUDIT_RATE_LIMITER:{limit:async()=>({success:true})},
+  AUDIT_ADMISSION:{idFromName:name=>name,get:()=>({fetch:async()=>Response.json({lease:'test-lease'})})},
   AUDIT_SAFE_FETCH:{fetch:async()=>new Response(html,{headers:{'content-type':'text/html'}})}
 };
 const request=(body,extra={})=>new Request(endpoint,{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token},body,...extra});

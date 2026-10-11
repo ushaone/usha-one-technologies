@@ -16,7 +16,7 @@ const open=async name=>{
     overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
   }));
   assert.equal(data.headings,1,name+' must have one H1');
-  assert.ok(data.overflow<=4,name+' has 390px viewport overflow: '+data.overflow);
+  assert.ok(data.overflow<=4,name+' has viewport overflow: '+data.overflow);
   console.log('WEBKIT MOBILE PASS: '+name);
 };
 try{
@@ -62,5 +62,14 @@ try{
   assert.equal(await page.locator('#report').isVisible(),true);
   assert.match(await page.locator('#meta').innerText(),/not a live crawl/);
   assert.match(await page.locator('#cards').innerText(),/WebKit SEO sample/);
+  for(const width of [360,420,768,1440]){
+    await page.setViewportSize({width,height:900});
+    for(const name of ['index.html','seo.html','seo-preflight.html','seo-offline-standalone.html','seo-audit-report.html']){
+      await open(name);
+      await page.keyboard.press('Tab');
+      assert.equal(await page.evaluate(()=>document.activeElement!==document.body),true,name+' Tab must reach a control');
+      console.log('WEBKIT RESPONSIVE PASS: '+name+' ('+width+'px, keyboard Tab)');
+    }
+  }
   console.log('WEBKIT PASS: navigation, keyboard, local upload/export, JSON import and 390px layouts');
 }finally{await context.close();await browser.close()}
