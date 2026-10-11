@@ -37,3 +37,40 @@ jobs:
         run: node scripts/seo-browser-smoke.mjs
       - name: Verify SEO report prints to a valid PDF
         run: node scripts/seo-print-pdf-smoke.mjs
+      - name: Package ready-to-use offline SEO toolkit
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+          Path('dist').mkdir(exist_ok=True)
+          output = Path('dist/usha-one-seo-offline-toolkit.zip')
+          with ZipFile(output, 'w', ZIP_DEFLATED) as z:
+              z.write('seo-offline-standalone.html', 'seo-offline-standalone.html')
+              z.write('seo-audit-report.html', 'seo-audit-report.html')
+              z.write('tests/fixtures/seo-example-page.html', 'sample-page.html')
+              z.writestr('README-FIRST.txt', (
+                  'USHA ONE TECHNOLOGIES - OFFLINE SEO TOOLKIT\\n'
+                  '1. Open seo-offline-standalone.html in your browser.\\n'
+                  '2. Enter the original page URL, and choose a saved .html file.\\n'
+                  '3. Select sample-page.html to try the included example.\\n'
+                  '4. Analyze HTML and download the JSON report.\\n'
+                  '5. Open seo-audit-report.html, import that JSON, then Print / Save PDF.\\n'
+                  'This toolkit never crawls live websites and measures no rankings, indexing or page speed.\\n'
+              ))
+          with ZipFile(output) as z:
+              assert set(z.namelist()) == {
+                  'seo-offline-standalone.html',
+                  'seo-audit-report.html',
+                  'sample-page.html',
+                  'README-FIRST.txt',
+              }
+              assert z.testzip() is None
+          print(f'OFFLINE ZIP PASS: {output} ({output.stat().st_size} bytes)')
+          PY
+      - name: Upload verified offline SEO toolkit ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: usha-one-seo-offline-toolkit
+          path: dist/usha-one-seo-offline-toolkit.zip
+          retention-days: 30
+          if-no-files-found: error
