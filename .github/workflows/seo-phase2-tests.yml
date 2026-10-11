@@ -35,6 +35,8 @@ jobs:
         run: node --test tests/seo-*.test.mjs
       - name: Smoke-test SEO tools in real headless Chrome
         run: node scripts/seo-browser-smoke.mjs
+      - name: Verify mobile keyboard and accessibility semantics in real Chrome
+        run: node scripts/seo-accessibility-smoke.mjs
       - name: Verify SEO report prints to a valid PDF
         run: node scripts/seo-print-pdf-smoke.mjs
       - name: Package ready-to-use offline SEO toolkit
