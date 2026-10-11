@@ -90,5 +90,8 @@ jobs:
         run: |
           npm install --no-save playwright@1.56.1
           npx playwright install webkit
+      # macOS otherwise skips buttons/links when using Tab in WebKit.
+      - name: Enable macOS full keyboard navigation for WebKit
+        run: defaults write -g AppleKeyboardUIMode -int 3
       - name: Run actual WebKit mobile, keyboard, export and import tests
         run: node scripts/seo-webkit-smoke.mjs
