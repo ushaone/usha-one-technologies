@@ -38,3 +38,34 @@ Not in scope for the offline PR. Requires separate security/privacy/product eval
 - Consult the **latest** development commit's GitHub Actions run after security/QA changes before asserting its test counts or release readiness.
 - Static PR: https://github.com/ushaone/usha-one-technologies/pull/2.
 - Platform rate-limit behavior: https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/.
+
+## Cloudflare upload correction and release evidence — 2026-10-11
+
+- Owner-supplied build log confirms candidate version `197e1d1c-0774-4b38-9cc7-5865f17d0fac` uploaded from an isolated temporary website directory. This was `versions upload`, not a production deployment.
+- Source candidate remains `997ba0872688c5473961960d66f42537e126bd92`. The seven-file requirement is the **diff from main**; the complete website contains 24 files (plus 7 directories), including existing brand assets.
+- Earlier version `a3a73bbb-4fff-4742-b906-82bd1611907c` uploaded Git metadata and Wrangler temporary files because `--assets ./` traversed the repository. Do not deploy that version. A new clean version does not delete old versions.
+- Owner screenshot at 12:33 IST shows **Preview OFF, Production ON** for `tech`. This is dashboard evidence of routing configuration, not independent HTTP verification or proof of deletion. Never re-enable public previews on this Worker without containing the older versions first. Use authenticated preview access or a separate clean static QA Worker.
+- Current production rollback version, provided by owner from the active deployment: `ee8d11eb-0de1-4060-ab86-78c0bf4cf0bd`. Recheck it immediately before production release.
+- Direct HTTP checks from the agent environment returned 403 for the candidate homepage, SEO page and Git HEAD probe even before preview routing was disabled. These responses do not prove correct asset routing or successful deployed functional QA.
+- Most recent previously verified complete browser CI: https://github.com/ushaone/usha-one-technologies/actions/runs/38107077517 at `09b5b37329ef278345e4fdc5bdcfb62a2b13f479`: 174 Node tests, 12 Chromium scenarios, 5 mobile semantic smoke pages, 25 WebKit layouts, PDF and ZIP passed. Recheck CI for later commits; physical iOS/Safari print and screen-reader review remain unverified.
+
+### Prevent recurrence in development builds
+
+`node scripts/stage-static-assets.mjs` stages exactly the reviewed 24 website paths from immutable HEAD Git blobs into `.static-assets`. Missing files or symlinks fail the build. Checkout metadata, untracked files, unexpected tracked files and stale output are excluded. Development Wrangler configuration points only to this staged directory and explicitly disables preview URLs. This does not change `main`, the seven-file candidate or the private live-audit Worker.
+
+Run the staging script explicitly before Wrangler in CI. Workers Builds custom-build handling can differ from local Wrangler; do not depend on the local build hook alone. The existing dashboard temporary-directory command remains valid for the static branch, which has no build script or Wrangler config.
+
+### Static-branch dashboard staging command (version upload only)
+
+```sh
+SEO_ASSET_TMP=$(mktemp -d) && git archive --output="$SEO_ASSET_TMP/site.tar" HEAD index.html seo.html seo-preflight.html seo-offline-standalone.html seo-audit-report.html ASSETS css js && mkdir "$SEO_ASSET_TMP/public" && tar -xf "$SEO_ASSET_TMP/site.tar" -C "$SEO_ASSET_TMP/public" && npx wrangler@4.149.0 versions upload --name tech --assets "$SEO_ASSET_TMP/public" --compatibility-date 2026-10-10
+```
+
+Do not restore `--assets ./`. The dashboard production command observed earlier (`npx wrangler deploy`) is not ready for the config-free static branch and must be corrected before any authorized merge triggers a build. After explicit production authorization, the same isolated staging sequence can use `wrangler deploy` instead of `wrangler versions upload`. Alternatively promote the exact verified clean version through Cloudflare's deployment mechanism, and reconcile Git only with automatic deployment behavior understood. Neither path is authorized yet.
+
+### Remaining external release gates
+
+- Deployed functional QA through authenticated preview access or a separate clean QA Worker; no public preview re-enable just to test.
+- Actual-device checks or explicit owner acceptance of deferred checks.
+- Verify current active production version and safe production build command; explicit final production authorization.
+- Live audit remains NO GO until real gateway, firewall, IP pinning, authentication and global admission controls are provisioned and tested.

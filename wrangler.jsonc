@@ -1,9 +1,12 @@
-
 {
   "name": "tech",
   "compatibility_date": "2026-10-10",
   "assets": {
-    "directory": "./",
+    "directory": "./.static-assets",
     "html_handling": "auto-trailing-slash"
+  },
+  "preview_urls": false,
+  "build": {
+    "command": "node scripts/stage-static-assets.mjs"
   }
 }

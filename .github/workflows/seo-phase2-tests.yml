@@ -30,6 +30,8 @@ jobs:
           node-version: '22'
       - name: Confirm static-only release candidate matches verified source
         run: node scripts/seo-release-candidate-verify.mjs
+      - name: Stage only reviewed committed website assets
+        run: node scripts/stage-static-assets.mjs
       - name: Confirm standalone offline tool matches audited sources
         run: node scripts/build-seo-standalone.mjs --check
       - name: Run all SEO Phase 2 tests

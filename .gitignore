@@ -1,0 +1,5 @@
+/.static-assets/
+/.static-assets-stage-*/
+/.wrangler/
+/node_modules/
+/dist/
