@@ -22,9 +22,13 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Confirm static-only release candidate matches verified source
+        run: node scripts/seo-release-candidate-verify.mjs
       - name: Confirm standalone offline tool matches audited sources
         run: node scripts/build-seo-standalone.mjs --check
       - name: Run all SEO Phase 2 tests
