@@ -5,7 +5,7 @@ const MAX_BYTES=250_000;
 export async function auditAllowedPage(input,{allowedHosts=[],fetcher,timeoutMs=5000}={}){
   if(typeof fetcher!=='function')throw new Error('Safe egress fetcher required');
   // URL normalization removes the default HTTPS port; inspect the authority before parsing.
-  if(typeof input!=='string'||/^https:\/\/[^/?#]*:443(?:[/?#]|$)/i.test(input))throw new Error('Explicit ports are not allowed');
+  if(typeof input!=='string'||/^https:\/\/[^/?#]*:[0-9]+(?:[/?#]|$)/i.test(input))throw new Error('Explicit ports are not allowed');
   const url=new URL(input);
   const host=url.hostname.toLowerCase();
   // Defense in depth: do not rely on callers to reject internal or malformed names.
