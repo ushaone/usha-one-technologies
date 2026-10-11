@@ -61,7 +61,7 @@ export async function fetchPinnedHtml(url,{hostname,address,timeoutMs=5000}){
   if(u.protocol!=='https:'||u.hostname!==hostname||u.port||u.username||u.password||u.hash)throw Error('Pinned destination mismatch');
   return new Promise((resolve,reject)=>{
     let settled=false;
-    const deadline=setTimeout(()=>req.destroy(Error('Egress total deadline exceeded')),timeoutMs);
+    let deadline;
     const done=(err,value)=>{if(settled)return;settled=true;clearTimeout(deadline);err?reject(err):resolve(value)};
     const req=httpsRequest(u,{
       method:'GET',agent:false,autoSelectFamily:false,family:4,servername:hostname,
@@ -87,6 +87,7 @@ export async function fetchPinnedHtml(url,{hostname,address,timeoutMs=5000}){
         }));
       }catch(e){res.destroy();done(e)}
     });
+    deadline=setTimeout(()=>req.destroy(Error('Egress total deadline exceeded')),timeoutMs);
     req.setTimeout(timeoutMs,()=>req.destroy(Error('Egress request timeout')));
     req.on('error',e=>done(e));
     req.end();
