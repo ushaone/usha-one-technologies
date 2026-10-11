@@ -33,3 +33,20 @@ Show observed evidence and timestamps, actionable suggestions and check coverage
 
 ## Release gates
 Do not deploy the backend to production until all security tests pass, the deployment target is isolated, and the owner approves. No automatic production promotion.
+
+## Security architecture sign-off (11 October 2026)
+
+**Trust boundary:** browser/client → independently protected private preview endpoint → bearer-authenticated Worker → globally enforced shared quota/concurrency coordinator → **separately operated, IP-pinning safe-egress gateway** → public HTTPS origin. The Cloudflare Worker **must never** call native `fetch` on a user-supplied audit URL, and the gateway must not accept arbitrary public callers.
+
+**Gateway acceptance contract (not yet implemented/provisioned):**
+1. Resolve the exact, approved ASCII hostname through a trusted resolver; inspect the entire CNAME chain (or reject unresolved/ambiguous chains), and reject any result with an IPv4 or IPv6 loopback, private, link-local, carrier-grade NAT, documentation, multicast, reserved, or cloud metadata destination. Include IPv4-mapped IPv6, hexadecimal, octal and single-integer IPv4 representations in negative fixtures.
+2. Enforce the approved hostname and a constrained path policy. Pin the validated public address to the actual TCP/TLS connection; verify the TLS certificate against the original hostname with SNI. **Never** resolve DNS once to check and then reconnect by name with an unpinned `fetch` — this is vulnerable to DNS rebinding.
+3. Reject redirects, proxies, CONNECT requests, user-supplied Host/Authorization/Cookie headers, non-HTTPS ports, non-HTML MIME types, oversized headers and response streams; allow one request only, with a hard overall timeout and byte cap.
+4. Isolate egress network permissions so the gateway cannot connect to internal networks, metadata IP ranges, or private cloud control planes even if validation fails. Deny by default and record redacted audit logs without secrets.
+5. Require gateway-to-Worker authentication/identity, Cloudflare Access or equivalent on the private entrypoint, a shared **global** quota and concurrency budget, and per-approved-origin quotas. Audit unauthorized calls and do not leak backend errors. Apply emergency disable and secret-rotation procedures.
+
+**Important Cloudflare limitation:** the Cloudflare Workers Rate Limiting binding offers *per-location*, eventually consistent enforcement, **not** a globally exact quota. A real cross-location quota/concurrency requirement needs an additional shared coordinator (such as a carefully designed Durable Object), as well as isolated gateway controls. Reference: https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/.
+
+**Verified scope:** application-level input/body bounds, explicit host validation, bearer token, fail-closed binding checks, rate-limit adapter handling, and no automatic redirect following have Node regression coverage. **Not verified:** actual DNS/CNAME chain validation, TLS/IP pinning, gateway firewall, globally shared quotas, external identity controls, and isolated deployment. Mocked fetch tests cannot stand in for those network-layer acceptance tests.
+
+**Decision:** leave `ENABLE_PRIVATE_AUDIT=false` and `AUDIT_ALLOWED_HOSTS=""` until gateway infrastructure and security review are complete. Do not publish live scanning or market simulated results as measured live results.
