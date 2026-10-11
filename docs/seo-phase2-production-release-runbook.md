@@ -69,3 +69,34 @@ Do not restore `--assets ./`. The dashboard production command observed earlier 
 - Actual-device checks or explicit owner acceptance of deferred checks.
 - Verify current active production version and safe production build command; explicit final production authorization.
 - Live audit remains NO GO until real gateway, firewall, IP pinning, authentication and global admission controls are provisioned and tested.
+
+## Consolidated release review — 2026-10-11, evening IST
+
+No production deployment or merge was performed. Live outbound scanning remains disabled.
+
+### Verified implementation and tests
+- Tested code commit: `318565dc451df3afbbc8f79b58a4d103c2f2e2c7`.
+- Actions https://github.com/ushaone/usha-one-technologies/actions/runs/38120837885: both jobs completed successfully; every required test/export/package step was re-read from GitHub.
+- Recorded local Node result: 177/177. CI covers 12 Chromium scenarios, 5 mobile semantic smoke pages, 25 WebKit viewport layouts, keyboard navigation, JSON export/import, PDF generation and ZIP validation. This review does not claim a new local browser run.
+- Evening remote-ref check confirmed main `ed356568d30e66e5c5a07f4f9e41fe8fcd0ec0a2`, candidate `997ba0872688c5473961960d66f42537e126bd92` and tested development commit above.
+- Seven-file blob integrity gate rerun successfully. PR #2 remains open, unmerged and mergeable.
+- Safe staging, SSRF validation/IP-pinning code, authentication-before-body, hard deadlines, shared admission and negative tests are implemented. Real infrastructure security verification is still outstanding.
+
+### Separate hosted QA evidence
+A separate clean temporary QA Worker was created earlier, version `16142ca9-6ed1-4142-a750-a1da7befb5e2`, containing only the reviewed 24 website files. It did not modify production `tech`.
+- Hosted homepage, SEO navigation, local URL preflight interaction, standalone HTML tool rendering and report viewer rendering were checked in the cloud browser.
+- Owner mobile screenshot at 13:35 IST shows the enquiry form fitting the visible viewport. It does not establish mobile menu, export or complete accessibility behavior.
+- Owner Mac Chrome screenshot at 13:38 IST confirms checklist generation with Test / https://example.com / Hyderabad and four consultation suggestions.
+- Hosted HTML-file upload → JSON download → report import → print was not completed in that temporary environment. Equivalent automated Chromium/WebKit/export/PDF checks passed in CI.
+- The temporary deployment had a one-hour lifetime. Do not advertise its old URL as a currently available preview; this evening review did not recreate or claim it.
+- Physical iOS Safari, device-native Save PDF and full screen-reader review remain unverified. Do not repeat payment/Zero Trust setup merely to view the offline toolkit.
+
+### Concrete release decision
+Static code and automated QA are ready for owner review; production remains HOLD for deployment-setting verification and final authorization. Physical-device checks and hosted export-chain checks must either be completed or explicitly accepted as deferred.
+1. Capture the current active `tech` version and ensure it is a known-good rollback. Previously owner-confirmed target: `ee8d11eb-0de1-4060-ab86-78c0bf4cf0bd`.
+2. Review Cloudflare branch triggers and replace the config-free branch's incomplete production command with isolated staging under the owner's production authorization. Never upload the repository root.
+3. Release only the exact reviewed static candidate, either through the prepared staging procedure or by promoting clean version `197e1d1c-0774-4b38-9cc7-5865f17d0fac` after confirming its provenance and settings. Merge/reconcile PR #2 only with automatic deployment behavior understood.
+4. Perform post-release navigation, HTML/JSON and print checks. Roll back the Worker immediately on customer impact; then revert Git via a new commit and verify automated builds.
+5. Keep private live audit NO GO until the real gateway/network/access/admission tests pass. This cannot be resolved by additional mocked tests.
+
+This documentation-only checkpoint does not change tested code or static candidate files. Its commit skips CI intentionally; the passing CI evidence above belongs to the exact tested code commit, not to a new test run.
