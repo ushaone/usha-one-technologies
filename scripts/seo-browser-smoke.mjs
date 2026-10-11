@@ -103,6 +103,15 @@ try{
    'if(!document.getElementById("report").classList.contains("hidden")||!document.getElementById("print").disabled)throw Error("Oversized report rendered or printed")'
  ].join(';'));
 
+ smoke('seo-audit-report.html','report-claimed-live-provenance',[
+   'const report={status:"complete",source:"live-html",liveCrawl:true,url:"https://www.example.org/",observations:[],title:"User-supplied JSON",recommendations:[]}',
+   'const dt=new DataTransfer()',
+   'dt.items.add(new File([JSON.stringify(report)],"claimed-live.json",{type:"application/json"}))',
+   'const picker=document.getElementById("file");picker.files=dt.files;picker.dispatchEvent(new Event("change"))',
+   'await waitFor(()=>!document.getElementById("print").disabled)',
+   'if(!document.getElementById("meta").textContent.includes("unverified imported JSON"))throw Error("Imported live claims must not imply authentication")'
+ ].join(';'));
+
  smoke('seo-audit-report.html','mobile-xss-report',[
    'const danger="<img src=x onerror=alert(1)>"',
    'const data={status:"complete",source:"offline-html",liveCrawl:false,url:"https://www.example.org/",observations:[{key:"title",status:"observed",value:danger}],title:danger,h1:[danger],h1Count:1,recommendations:[]}',
