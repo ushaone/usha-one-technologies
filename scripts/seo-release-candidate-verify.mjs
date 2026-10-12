@@ -10,7 +10,11 @@ const exec=(...args)=>{
  return run.stdout.trim();
 };
 const candidate='origin/seo-offline-release-candidate';
-const base='origin/main';
+// PR #2 is merged. A moving main now has the candidate's tree, so comparing
+// against it incorrectly reports zero changed files. Preserve the approved
+// pre-release baseline; do not weaken the seven-file or blob-equality checks.
+const base='ed356568d30e66e5c5a07f4f9e41fe8fcd0ec0a2';
+exec('merge-base','--is-ancestor',base,candidate);
 const allowed=[
  'index.html','seo.html','css/seo.css','js/seo.js',
  'seo-preflight.html','seo-offline-standalone.html','seo-audit-report.html'

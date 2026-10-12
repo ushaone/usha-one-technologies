@@ -42,7 +42,7 @@ Not in scope for the offline PR. Requires separate security/privacy/product eval
 ## Cloudflare upload correction and release evidence — 2026-10-11
 
 - Owner-supplied build log confirms candidate version `197e1d1c-0774-4b38-9cc7-5865f17d0fac` uploaded from an isolated temporary website directory. This was `versions upload`, not a production deployment.
-- Source candidate remains `997ba0872688c5473961960d66f42537e126bd92`. The seven-file requirement is the **diff from main**; the complete website contains 24 files (plus 7 directories), including existing brand assets.
+- Source candidate remains `997ba0872688c5473961960d66f42537e126bd92`. The seven-file requirement is the **diff from pre-release baseline `ed356568d30e66e5c5a07f4f9e41fe8fcd0ec0a2`**, not the moving `main` branch after merge; the complete website contains 24 files (plus 7 directories), including existing brand assets.
 - Earlier version `a3a73bbb-4fff-4742-b906-82bd1611907c` uploaded Git metadata and Wrangler temporary files because `--assets ./` traversed the repository. Do not deploy that version. A new clean version does not delete old versions.
 - Owner screenshot at 12:33 IST shows **Preview OFF, Production ON** for `tech`. This is dashboard evidence of routing configuration, not independent HTTP verification or proof of deletion. Never re-enable public previews on this Worker without containing the older versions first. Use authenticated preview access or a separate clean static QA Worker.
 - Current production rollback version, provided by owner from the active deployment: `ee8d11eb-0de1-4060-ab86-78c0bf4cf0bd`. Recheck it immediately before production release.
