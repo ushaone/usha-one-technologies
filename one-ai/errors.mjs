@@ -8,7 +8,7 @@ export function identifier(value, label = 'Identifier') {
   requireValue(typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9_.:@-]{0,127}$/.test(value), 400, `Invalid ${label}`);
   return value;
 }
-export async function readJSON(request, limit = 12000) {
+export async function readJSON(request, limit = 12000, {allowArray = false} = {}) {
   requireValue((request.headers.get('content-type') || '').split(';')[0].trim() === 'application/json', 415, 'JSON required');
   const reader = request.body?.getReader();
   requireValue(reader, 400, 'Body required');
@@ -23,7 +23,7 @@ export async function readJSON(request, limit = 12000) {
     const bytes = new Uint8Array(size); let offset = 0;
     for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
     const value = JSON.parse(new TextDecoder('utf-8', {fatal:true}).decode(bytes));
-    requireValue(value && typeof value === 'object' && !Array.isArray(value), 400, 'JSON object required');
+    requireValue(value && typeof value === 'object' && (allowArray || !Array.isArray(value)), 400, 'JSON object required');
     return value;
   } catch (e) { if (e instanceof APIError) throw e; throw new APIError(400, 'Invalid JSON'); }
   finally { reader.releaseLock(); }

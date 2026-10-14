@@ -41,7 +41,7 @@ Identifiers: 1–128 ASCII letters/digits with `_ . : @ -` after the first chara
 
 The engine signs a separate 60-second token with `CRM_TOKEN_SECRET`, audience `one-ai-crm`, issuer equal to the engine audience, and `leadId` in addition to identity scope. `CRM.fetch(GET /context/:leadId)` must verify the token and look up the lead in the scoped CRM. It returns exactly `{product,tenantId,leadId,status}`. Unowned/missing leads return 404. Never return arbitrary notes or contact details.
 
-Neo IDs: `growth:<lead_id>` or `enquiry:<id>`. Tenant mapping is explicitly configured in the Neo connector. USHA Supabase table names and Auth are confirmed by the recovered handoff, but lead columns, tenant relationships and RLS policy details are not available; the tested `createUshaContextService({findLead})` contract must be attached to its real backend before claiming integration is live.
+Neo IDs: `growth:<lead_id>` or `enquiry:<id>`. Tenant mapping is explicitly configured in the Neo connector. USHA uses lead UUIDs and an explicit tenant-to-business/staff mapping. The concrete `usha-supabase-context.mjs` connector filters the verified `leads.id` and `leads.business_id` columns and verifies active staff. It is implemented/tested but not deployed. See SUPABASE_REVIEW.md for credential provisioning and existing CRM security blockers.
 
 ## UI mounting
 

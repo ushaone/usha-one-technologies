@@ -1,0 +1,13 @@
+name = "one-ai-usha-context-staging"
+main = "usha-supabase-context.mjs"
+compatibility_date = "2026-10-13"
+workers_dev = false
+preview_urls = false
+[vars]
+ENGINE_AUDIENCE = "one-ai:usha-one:staging"
+SUPABASE_ORIGIN = "https://REPLACE_STAGING_PROJECT.supabase.co"
+CONTEXT_SCOPES_JSON = '{}'
+# Secrets: CRM_TOKEN_SECRET, SUPABASE_PUBLISHABLE_KEY, SUPABASE_CONTEXT_BEARER.
+# CONTEXT_SCOPES_JSON: tenant -> {active:true,businessId:UUID,actorIds:[staff UUIDs]}.
+# Provision a dedicated read-only Data API role/token; do not use a browser token or
+# production admin/service-role credential as a staging shortcut. See SUPABASE_REVIEW.md.

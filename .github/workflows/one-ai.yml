@@ -34,6 +34,7 @@ jobs:
       - run: node scripts/local-runtime.mjs --verify
       - run: npx wrangler deploy worker.mjs --dry-run --name one-ai-bundle-check --compatibility-date 2026-10-13 --outdir dist
       - run: npx wrangler deploy integrations/gateway-worker.mjs --dry-run --name one-ai-gateway-bundle-check --compatibility-date 2026-10-13 --outdir dist/gateway
+      - run: npx wrangler deploy integrations/usha-supabase-context.mjs --dry-run --name one-ai-usha-context-check --compatibility-date 2026-10-13 --outdir dist/usha-context
       - name: Install Chromium for review workflow QA
         run: |
           npm install --no-save --package-lock=false playwright@1.62.1

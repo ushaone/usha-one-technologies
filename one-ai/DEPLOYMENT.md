@@ -3,7 +3,7 @@
 ## Staging prerequisites
 
 1. Authorize the deployment operator in the correct Cloudflare accounts. `wrangler whoami` in this session reported **not authenticated**. Do not paste signing keys into chat or commit them.
-2. Reuse the existing USHA Supabase project and Auth. The recovered master handoff confirms a super_admin profile and public tables profiles, businesses, contacts, leads, opportunities and activity_log, plus intake RPCs. Export the lead/profile/business columns and RLS policy definitions using the supplied read-only `integrations/supabase-schema-inspection.sql`. Column-level ownership relationships remain unknown; do not guess or recreate the backend.
+2. Reuse the existing USHA Supabase project and Auth. The recovered master handoff confirms a super_admin profile and public tables profiles, businesses, contacts, leads, opportunities and activity_log, plus intake RPCs. Live read-only inspection after the authorized resume confirmed leads.business_id and profile role/activity columns. Use the concrete Supabase connector and explicitly provision tenant/business/staff mappings. Resolve the existing security findings in SUPABASE_REVIEW.md before production.
 3. Reconcile the Neo repository Worker (reviewed SHA `d503b535e59471938e80c6fb6a92b59636a1eda0`) with the current deployed Worker before connecting a staging clone. The archived finance-sequences-v2 package was inspected: it lacks Growth CRM tables and employee/me school_id. Existing individual employee accounts can be reused by the new gateway; shared admin/school logins cannot identify two independent approvers.
 4. Provision two **new dedicated ONE AI staging D1 databases**, one per product. Use synthetic CRM records or a properly minimized staging dataset. Never apply these migrations to the existing school, finance or USHA CRM databases.
 
@@ -37,7 +37,7 @@ Use `neo-school-india` in Neo's database. Principal provisioning is an operator 
 
 ## Real integration
 
-Deploy Neo's standalone context connector with a staging clone binding and explicit tenant-to-school map. Its code issues SELECT queries only; Cloudflare D1 bindings themselves are not SQL-level read-only credentials, so deployment permissions and code review remain essential. USHA needs its `findLead` implementation based on the verified existing Supabase schema/RLS. Bind each engine only to its organization's connector.
+Deploy Neo's standalone context connector with a staging clone binding and explicit tenant-to-school map. Its code issues SELECT queries only; Cloudflare D1 bindings themselves are not SQL-level read-only credentials, so deployment permissions and code review remain essential. Deploy USHA's `integrations/usha-supabase-context.mjs` using its example config, explicit scopes and a separately provisioned restricted read-only Data API credential. Bind each engine only to its organization's connector.
 
 Deploy the new `integrations/gateway-worker.mjs` separately per product using its example config, existing Supabase or Neo identity provider, and explicit SESSION_MEMBERSHIPS_JSON. Mount `/api/one-ai/*` on the approved CRM origin, or mount the server-only CRM client behind existing session middleware. Resolve stable individual staff ID and tenant from the existing verified session and permissions. Protect the proxy against CSRF and cross-origin calls, revoke departed staff, and use shorter sessions/MFA according to existing organization policy. Mount the review panel after this proxy works. Do not issue different identities on top of a single shared password to simulate separation of duties.
 
@@ -66,6 +66,6 @@ Restrict Cloudflare admin access, enable account audit logs/alerts, monitor auth
 
 ## Handoff reconciliation completed
 
-Inspected the uploaded `USHA_ONE_TRANSFER_PACK.zip` / `USHA_ONE_MASTER_HANDOFF.txt` and `neo-lead-crm-api-worker-finance-sequences-v2.zip`. The USHA handoff establishes existing Auth and CRM tables, not their column-level tenant policy. The Neo archive supports school enquiries but not the newer Growth CRM connector query. Keep `ENABLE_GROWTH_CONTEXT=false` unless the current staging schema is verified. The identity gateway intentionally fails closed for the archived employee/me response until current school identity is available.
+Inspected the uploaded `USHA_ONE_TRANSFER_PACK.zip` / `USHA_ONE_MASTER_HANDOFF.txt` and `neo-lead-crm-api-worker-finance-sequences-v2.zip`. The USHA handoff was followed by read-only live schema/policy verification after an owner-authorized project resume. The Neo archive supports school enquiries but not the newer Growth CRM connector query. Keep `ENABLE_GROWTH_CONTEXT=false` unless the current staging schema is verified. The identity gateway intentionally fails closed for the archived employee/me response until current school identity is available.
 
-No remote data or credentials were accessed during this inspection. The recovered files do not prove which Cloudflare Worker version is currently deployed.
+Only remote catalog metadata and zero-row schema validation queries were read; no customer data or credentials were retrieved. The recovered files do not prove which Cloudflare Worker version is currently deployed.

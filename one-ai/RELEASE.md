@@ -1,6 +1,6 @@
 # ONE AI Master production readiness report
 
-Date: 2026-10-14. Decision: **NO-GO for production**. No production deployment, merge, database change or outbound message was performed.
+Date: 2026-10-14. Decision: **NO-GO for production**. The existing Supabase project was resumed with owner authorization. No production code deployment, merge, schema/policy/data mutation or outbound message was performed.
 
 ## Source reviewed
 
@@ -18,7 +18,7 @@ Date: 2026-10-14. Decision: **NO-GO for production**. No production deployment, 
 | Transactions and audit | Atomic SQLite audit triggers, append-only events, optimistic versions and idempotent creation tested |
 | Telugu, English, Hindi generation | Workers AI adapter and safety/minimization checks implemented; automated tests use synthetic model output; live inference and native-language quality review pending |
 | Staff/manager approval | API workflow tested, including self-approval denial and approval invalidation; responsive review panel and Chromium workflow test passed in GitHub CI |
-| USHA CRM | Server client and context adapter contract tested; recovered handoff confirms Supabase Auth/CRM; actual lead columns, ownership joins and RLS definitions still needed |
+| USHA CRM | Existing Supabase resumed and schema/RLS verified; concrete scoped connector implemented/tested; restricted credential, security remediation and deployed integration pending |
 | Neo Admissions CRM | Separate read-only connector implemented/tested against repository table contract; archived v2 schema inspected; actual deployed version, gateway/CRM mounting and membership configuration pending |
 | Outbound messaging | Disabled; no provider/consent/template setup was verified |
 | Staging verification | Local workerd/D1 checks passed with synthetic CRM/AI; remote staging not deployed/verified |
@@ -31,7 +31,7 @@ Date: 2026-10-14. Decision: **NO-GO for production**. No production deployment, 
 |---|---|
 | Initial existing foundation tests | 3 passed before modification |
 | `npm run check` | Passed JavaScript syntax checks |
-| Engine `npm test` | **20 tests passed**, 0 failed |
+| Engine `npm test` | **24 tests passed**, 0 failed |
 | Neo `node --test integrations/one-ai/worker.test.mjs` | **1 test passed**, 0 failed; multiple ownership/PII cases |
 | SQLite integration/security cases | Passed tenant/product isolation, revoked accounts, role denial, stale update race, failed audit rollback, append-only events, idempotency conflict, payload limits, provider failures and model-input minimization |
 | `npm audit` | 0 known vulnerabilities reported, including installed development dependencies |
@@ -46,7 +46,7 @@ Wrangler dev initially failed because the execution environment could not enumer
 ## Blocks requiring external input/access
 
 1. **Cloudflare authorization plus verified staging account/database identifiers**, separately for each organization. Configure secrets in the deployment account, not chat. No Cloudflare account access was available in this session.
-2. **Existing USHA Supabase schema/RLS export and staff membership configuration.** The recovered master handoff confirms existing Auth and CRM table names; the read-only SQL inventory supplied with this branch will resolve column-level lead ownership. The new gateway reuses Supabase Auth.
+2. **USHA restricted connector credentials, staff/business mappings and existing CRM security fixes.** Schema/RLS inspection is complete. SUPABASE_REVIEW.md documents the profile self-escalation path and definer-view exposure; these block production despite the independent ONE AI access controls.
 3. **Current Neo deployment version and individual employee membership mapping.** The archived v2 package was inspected and lacks Growth CRM tables and employee school_id in its identity response. The current repository has the newer contract; verify the deployed endpoint before enabling the gateway. Shared admin/branch credentials remain unsupported.
 4. **Live model enablement and language sign-off**, using synthetic leads in remote staging; provider account/budget/data handling must be verified.
 5. **Remote end-to-end tests of the mounted CRM component.** Synthetic Chromium testing is complete; actual existing portals and live provider bindings are not verified.
@@ -68,5 +68,5 @@ After these gates pass, produce a concrete deployment/rollback plan and request 
 
 - Engine Chromium/core run: https://github.com/ushaone/usha-one-technologies/actions/runs/38505097422 (passed on d1ea33052a2124e6043bbbb62d563a12fda77d5c).
 - Neo connector run: https://github.com/umakanthgilla/neo-school-india-website/actions/runs/38504992397 (passed on e501e3a0d6a43605a84f45d3ba63cc8accd3d0d7).
-- Follow-up identity adapters add three locally passing tests (20 engine tests total); check the latest PR head CI for those additions.
+- Identity adapters and the verified-schema Supabase connector bring the local suite to 24 passing tests; check latest PR head CI for runtime/browser evidence.
 - PRs: https://github.com/ushaone/usha-one-technologies/pull/3 and https://github.com/umakanthgilla/neo-school-india-website/pull/27.
