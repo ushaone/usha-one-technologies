@@ -24,12 +24,13 @@ export async function getDraft(db, tenantId, id) {
  return row ? {id:row.id,tenantId:row.tenant_id,product:row.product,leadId:row.lead_id,language:row.language,message:row.message,state:row.state,createdBy:row.created_by,approvedBy:row.approved_by,createdAt:row.created_at,updatedAt:row.updated_at,sentAt:row.sent_at,version:row.version}:null;
 }
 export async function saveTransition(db, before, after, action, actorId) {
- // Atomic optimistic concurrency update; event written only after successful update.
- // TODO: use D1 batch/transaction boundary for strict event atomicity.
- const result=await db.prepare("UPDATE one_ai_drafts SET state=?,approved_by=?,updated_at=?,sent_at=?,version=? WHERE id=? AND tenant_id=? AND version=? AND state=?")
- .bind(after.state,after.approvedBy,after.updatedAt,after.sentAt,after.version,before.id,before.tenantId,before.version,before.state).run();
- if(result.meta?.changes!==1) throw new Error("Concurrent modification");
- await db.prepare("INSERT INTO one_ai_events (id,draft_id,tenant_id,actor_id,action,at) VALUES (?,?,?,?,?,?)")
- .bind(crypto.randomUUID(),before.id,before.tenantId,actorId,action,after.updatedAt).run();
+ // D1 batch runs the update and audit event in one transaction.
+ // Audit insert is conditional on a successful optimistic version transition.
+ const update=db.prepare("UPDATE one_ai_drafts SET state=?,approved_by=?,updated_at=?,sent_at=?,version=? WHERE id=? AND tenant_id=? AND version=? AND state=?")
+ .bind(after.state,after.approvedBy,after.updatedAt,after.sentAt,after.version,before.id,before.tenantId,before.version,before.state);
+ const audit=db.prepare("INSERT INTO one_ai_events (id,draft_id,tenant_id,actor_id,action,at) SELECT ?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM one_ai_drafts WHERE id=? AND tenant_id=? AND version=? AND state=?)")
+ .bind(crypto.randomUUID(),before.id,before.tenantId,actorId,action,after.updatedAt,before.id,before.tenantId,after.version,after.state);
+ const [result,event]=await db.batch([update,audit]);
+ if(result.meta?.changes!==1 || event.meta?.changes!==1) throw new Error("Concurrent modification");
  return after;
 }
