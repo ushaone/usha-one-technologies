@@ -3,8 +3,8 @@
 ## Staging prerequisites
 
 1. Authorize the deployment operator in the correct Cloudflare accounts. `wrangler whoami` in this session reported **not authenticated**. Do not paste signing keys into chat or commit them.
-2. Identify the real USHA Business CRM server/source, user sessions and tenant model. Older context references a Supabase project `ushaone` and intake RPCs `submit_business_audit`/`submit_roadmap_request`, but those do not establish an authenticated Business CRM schema or staff identity service. Do not invent or recreate that backend.
-3. Reconcile the Neo repository Worker (reviewed SHA `d503b535e59471938e80c6fb6a92b59636a1eda0`) with the deployed finance-sequences-v2 Worker before connecting a staging clone. The existing shared admin and school logins cannot identify two independent human approvers.
+2. Reuse the existing USHA Supabase project and Auth. The recovered master handoff confirms a super_admin profile and public tables profiles, businesses, contacts, leads, opportunities and activity_log, plus intake RPCs. Export the lead/profile/business columns and RLS policy definitions using the supplied read-only `integrations/supabase-schema-inspection.sql`. Column-level ownership relationships remain unknown; do not guess or recreate the backend.
+3. Reconcile the Neo repository Worker (reviewed SHA `d503b535e59471938e80c6fb6a92b59636a1eda0`) with the current deployed Worker before connecting a staging clone. The archived finance-sequences-v2 package was inspected: it lacks Growth CRM tables and employee/me school_id. Existing individual employee accounts can be reused by the new gateway; shared admin/school logins cannot identify two independent approvers.
 4. Provision two **new dedicated ONE AI staging D1 databases**, one per product. Use synthetic CRM records or a properly minimized staging dataset. Never apply these migrations to the existing school, finance or USHA CRM databases.
 
 ## Provision each engine
@@ -37,9 +37,9 @@ Use `neo-school-india` in Neo's database. Principal provisioning is an operator 
 
 ## Real integration
 
-Deploy Neo's standalone context connector with a staging clone binding and explicit tenant-to-school map. Its code issues SELECT queries only; Cloudflare D1 bindings themselves are not SQL-level read-only credentials, so deployment permissions and code review remain essential. USHA needs its `findLead` implementation in the actual backend. Bind each engine only to its organization's connector.
+Deploy Neo's standalone context connector with a staging clone binding and explicit tenant-to-school map. Its code issues SELECT queries only; Cloudflare D1 bindings themselves are not SQL-level read-only credentials, so deployment permissions and code review remain essential. USHA needs its `findLead` implementation based on the verified existing Supabase schema/RLS. Bind each engine only to its organization's connector.
 
-Mount the server-only CRM client in the actual CRM backend after its session middleware. Resolve stable individual staff ID and tenant from the existing verified session and permissions. Protect the proxy against CSRF and cross-origin calls, revoke departed staff, and use shorter sessions/MFA according to existing organization policy. Mount the review panel after this proxy works. Do not issue different identities on top of a single shared password to simulate separation of duties.
+Deploy the new `integrations/gateway-worker.mjs` separately per product using its example config, existing Supabase or Neo identity provider, and explicit SESSION_MEMBERSHIPS_JSON. Mount `/api/one-ai/*` on the approved CRM origin, or mount the server-only CRM client behind existing session middleware. Resolve stable individual staff ID and tenant from the existing verified session and permissions. Protect the proxy against CSRF and cross-origin calls, revoke departed staff, and use shorter sessions/MFA according to existing organization policy. Mount the review panel after this proxy works. Do not issue different identities on top of a single shared password to simulate separation of duties.
 
 Enable Workers AI only for the intended account/environment and check model availability, data-processing requirements, quotas and budget before a live trial. Prompts contain only enum purpose/status. Native-language reviewers must assess Telugu, English and Hindi for accuracy and tone. Script detection is not translation-quality certification.
 
@@ -63,3 +63,9 @@ Do not merge for production activation or deploy to production until all above e
 Back up the dedicated database before migrations and record deployment/version IDs. Migrations are additive; retain them during code rollback. Disable the new CRM integration feature or remove its service binding to stop new calls, revoke principals if needed, and restore the previous Worker version. Do not downgrade to the insecure foundation API or delete audit history. Restore a DB snapshot only through an explicitly approved recovery plan; replay/duplicate handling and audit preservation must be reviewed first. Existing operational CRM databases are unaffected by the engine's schema.
 
 Restrict Cloudflare admin access, enable account audit logs/alerts, monitor authentication failures, 409/429/5xx rates and inference spending. Payloads/tokens/contact details must not be logged. Define a customer-approved retention/deletion policy before production: append-only SQL triggers protect audit records from ordinary app updates, but they are not tamper-proof against a database administrator. No tenant purge endpoint is shipped.
+
+## Handoff reconciliation completed
+
+Inspected the uploaded `USHA_ONE_TRANSFER_PACK.zip` / `USHA_ONE_MASTER_HANDOFF.txt` and `neo-lead-crm-api-worker-finance-sequences-v2.zip`. The USHA handoff establishes existing Auth and CRM tables, not their column-level tenant policy. The Neo archive supports school enquiries but not the newer Growth CRM connector query. Keep `ENABLE_GROWTH_CONTEXT=false` unless the current staging schema is verified. The identity gateway intentionally fails closed for the archived employee/me response until current school identity is available.
+
+No remote data or credentials were accessed during this inspection. The recovered files do not prove which Cloudflare Worker version is currently deployed.

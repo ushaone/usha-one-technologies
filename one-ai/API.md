@@ -41,8 +41,19 @@ Identifiers: 1–128 ASCII letters/digits with `_ . : @ -` after the first chara
 
 The engine signs a separate 60-second token with `CRM_TOKEN_SECRET`, audience `one-ai-crm`, issuer equal to the engine audience, and `leadId` in addition to identity scope. `CRM.fetch(GET /context/:leadId)` must verify the token and look up the lead in the scoped CRM. It returns exactly `{product,tenantId,leadId,status}`. Unowned/missing leads return 404. Never return arbitrary notes or contact details.
 
-Neo IDs: `growth:<lead_id>` or `enquiry:<id>`. Tenant mapping is explicitly configured in the Neo connector. USHA storage schema and backend are not established by this repository; the tested `createUshaContextService({findLead})` contract must be attached to its real backend before claiming integration is live.
+Neo IDs: `growth:<lead_id>` or `enquiry:<id>`. Tenant mapping is explicitly configured in the Neo connector. USHA Supabase table names and Auth are confirmed by the recovered handoff, but lead columns, tenant relationships and RLS policy details are not available; the tested `createUshaContextService({findLead})` contract must be attached to its real backend before claiming integration is live.
 
 ## UI mounting
 
 Import `mountReviewPanel` from `integrations/review-panel.mjs`, include its scoped CSS, and supply a selected CRM lead ID plus `api(path,options)`. That callback calls your authenticated same-origin server proxy and throws the returned error on non-2xx responses. It must not expose engine signing keys to the browser. The UI always defers authorization and version enforcement to the server. Rendered draft text is untrusted even after model output validation.
+
+## Existing identity gateway
+
+`integrations/gateway-worker.mjs` serves the restricted `/api/one-ai/drafts...` route using existing bearer sessions. Deploy it separately per product, binding only that product's engine. It replaces the source session with a short-lived engine credential; the original token, Supabase user metadata and Neo HR fields are never forwarded.
+
+- USHA: verifies the bearer with the configured Supabase project's `/auth/v1/user`, using a publishable/anon key, HTTPS, no redirects and a bounded timeout. Roles from `user_metadata` are ignored. Anonymous and nonprovisioned users are denied.
+- Neo: asks the existing Worker through a private `NEO_APP` binding at fixed `/api/employee/me`. The response must contain individual `account_id` and matching `school_id`; an older v2 response missing school identity is rejected.
+- `SESSION_MEMBERSHIPS_JSON` is an operator-managed object keyed by the verified source user/account ID, e.g. `{"individual-id":{"tenantId":"test-tenant","authVersion":1,"active":true,"schoolId":"NEO-SCHOOL-ID"}}`. `schoolId` is required only for Neo. The same individual ID/version must be provisioned in the engine. Roles remain in engine D1, not the mapping or request.
+- If an Origin header is present, it must equal configured `CRM_ORIGIN`. No cookie authentication, token-exchange endpoint, wildcard CORS or send route is exposed. Apply edge rate controls to the gateway before public activation.
+
+The new gateway is implemented and tested with source-provider fixtures; its actual bindings, existing sessions and approved user mappings still require remote staging verification.

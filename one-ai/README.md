@@ -1,6 +1,6 @@
 # ONE AI Master — secure draft workflow candidate
 
-Release status: **not production-ready**. Core implementation and automated checks have progressed; browser verification, remote staging, actual CRM identity integration and provider verification remain blocked. See [RELEASE.md](RELEASE.md).
+Release status: **not production-ready**. Core, identity-adapter and Chromium checks passed; remote staging, live schema/identity configuration and provider verification remain blocked. See [RELEASE.md](RELEASE.md).
 
 ## Architecture
 
@@ -17,7 +17,7 @@ Workers AI returns a Telugu, English or Hindi **draft**. An owner/manager review
 - Immutable draft identity, optimistic version checks, idempotent creation and atomic append-only audit triggers. Failed/stale writes cannot create misleading audit events.
 - Generated/manual drafts, paginated list, read, edit, staff submission, manager approval/rejection, audit history.
 - Fixed Workers AI model binding and fixed private CRM service binding; no user-supplied fetch URLs, model IDs or prompts; bounded context and model response, timeouts, no automatic model retry.
-- Embeddable, responsive review component and a server-only CRM client.
+- Embeddable, responsive review component and a server-only CRM client and a gateway that reuses existing Supabase/Neo individual identities.
 - Separate Neo read-only connector PR; USHA context-service contract with tested ownership checks.
 
 ## Run checks
@@ -43,7 +43,9 @@ For browser checks, install Playwright and Chromium in the development environme
 - [API.md](API.md): exact routes, token and request contracts.
 - [USER_GUIDE.md](USER_GUIDE.md): staff and manager workflow, including Telugu guidance.
 - [OUTBOUND.md](OUTBOUND.md): consent, template and provider gates before any sending implementation.
-- `integrations/usha-context.mjs`: mount only after locating and reviewing the actual USHA CRM backend. Its `findLead` callback must query the correct customer/tenant's backend. No speculative Supabase schema is assumed.
+- `integrations/usha-context.mjs`: mount against the existing Supabase CRM after verifying its lead columns and RLS policies. Its `findLead` callback must query the correct customer/tenant's backend. No speculative Supabase schema is assumed.
 - Neo connector source: `umakanthgilla/neo-school-india-website/integrations/one-ai` on `feature/one-ai-admissions-connector`.
 
 Existing websites, logos, SEO branches, school portals, finance and operational Workers are not modified by this work.
+
+The recovered USHA master handoff confirms existing Supabase Auth, a super_admin profile and CRM tables. The implementation reuses these; it does not recreate Auth or assume table-column/tenant relationships. See `integrations/supabase-schema-inspection.sql` for a read-only schema/RLS inventory.

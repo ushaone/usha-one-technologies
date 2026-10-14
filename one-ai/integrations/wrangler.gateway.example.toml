@@ -1,0 +1,20 @@
+# Operator-filled staging configuration, never point unverified staging at production.
+name = "one-ai-usha-gateway-staging"
+main = "gateway-worker.mjs"
+compatibility_date = "2026-10-13"
+workers_dev = false
+preview_urls = false
+[vars]
+PRODUCT = "usha-one"
+TOKEN_ISSUER = "usha-crm-staging"
+TOKEN_AUDIENCE = "one-ai:usha-one:staging"
+CRM_ORIGIN = "https://REPLACE_STAGING_CRM_HOST"
+SUPABASE_ORIGIN = "https://REPLACE_STAGING_PROJECT.supabase.co"
+SESSION_MEMBERSHIPS_JSON = '{}'
+[[services]]
+binding = "ONE_AI"
+service = "one-ai-usha-staging"
+# Secret: ONE_AI_TOKEN_SECRET (same as this product engine), SUPABASE_PUBLISHABLE_KEY.
+# Neo deployment: PRODUCT=neo-school-india; distinct issuer/audience/keys/membership map.
+# Add NEO_APP service binding to VERIFIED current Neo staging Worker, omit Supabase config.
+# No broad public route is enabled by this example. Mount /api/one-ai/* only on the approved CRM origin.
