@@ -1,0 +1,9 @@
+{
+  "name": "one-ai-master-foundation",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test workflow.test.mjs",
+    "check": "node --check workflow.mjs && node --check storage.mjs && node --check adapters.mjs && node --check worker.mjs"
+  }
+}
