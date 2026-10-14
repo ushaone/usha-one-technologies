@@ -1,0 +1,8 @@
+# EXAMPLE ONLY. Do not deploy until secrets, auth, D1 migration and staging tests are configured.
+name = "one-ai-master-preview"
+main = "worker.mjs"
+compatibility_date = "2026-10-14"
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "one-ai-master-preview"
+# database_id = "REPLACE_WITH_STAGING_DATABASE_ID"
