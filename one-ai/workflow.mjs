@@ -1,46 +1,32 @@
-/**
- * ONE AI Master — pure workflow contract (no network, database, or model calls).
- * Import into an authenticated server-side adapter; never trust tenantId from a browser.
- */
-export const PRODUCTS = Object.freeze(["usha-one", "neo-school-india"]);
-export const STATES = Object.freeze(["draft", "pending_approval", "approved", "rejected", "sent"]);
-const max = (value, length) => String(value ?? "").trim().slice(0, length);
-function assert(condition, message) { if (!condition) throw new Error(message); }
-export function createDraft({ tenantId, product, leadId, language = "en", message, actorId, now = new Date().toISOString() }) {
-  assert(PRODUCTS.includes(product), "Unknown product");
-  assert(["en", "te", "hi"].includes(language), "Unsupported language");
-  assert(typeof tenantId === "string" && tenantId.trim().length > 0, "Tenant required");
-  assert(typeof leadId === "string" && leadId.trim().length > 0, "Lead required");
-  assert(typeof actorId === "string" && actorId.trim().length > 0, "Actor required");
-  assert(typeof message === "string" && message.trim().length > 0 && message.length <= 4000, "Invalid message");
-  return {
-    id: crypto.randomUUID(), tenantId: max(tenantId, 128), product,
-    leadId: max(leadId, 128), language, message: message.trim(),
-    state: "draft", createdBy: max(actorId, 128), approvedBy: null,
-    createdAt: now, updatedAt: now, sentAt: null, version: 1
-  };
+import {identifier, requireValue} from './errors.mjs';
+export const PRODUCTS = Object.freeze(['usha-one','neo-school-india']);
+export const STATES = Object.freeze(['draft','pending_approval','approved','rejected','sent']);
+export function validateMessage(message) {
+  requireValue(typeof message === 'string' && message.trim().length > 0 && message.length <= 4000 && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(message),400,'Invalid message');
+  return message.trim();
 }
-/**
- * Enforce authenticated tenant and actor in the server adapter BEFORE invoking.
- * Authorization roles are asserted here as defense in depth.
- */
-export function transition(draft, { action, actorId, role, tenantId, now = new Date().toISOString() }) {
-  assert(draft && STATES.includes(draft.state), "Invalid draft");
-  assert(tenantId === draft.tenantId, "Tenant mismatch");
-  assert(actorId && typeof actorId === "string", "Actor required");
-  const allowed = {
-    submit: ["draft", "pending_approval", ["staff", "manager", "admin"]],
-    approve: ["pending_approval", "approved", ["manager", "admin"]],
-    reject: ["pending_approval", "rejected", ["manager", "admin"]],
-    mark_sent: ["approved", "sent", ["sender", "manager", "admin"]]
-  };
-  const rule = allowed[action];
-  assert(rule && draft.state === rule[0], "Invalid state transition");
-  assert(rule[2].includes(role), "Insufficient role");
-  assert(action !== "approve" || actorId !== draft.createdBy, "Self-approval prohibited");
-  return {
-    ...draft, state: rule[1], updatedAt: now, version: draft.version + 1,
-    ...(action === "approve" ? { approvedBy: actorId } : {}),
-    ...(action === "mark_sent" ? { sentAt: now } : {})
-  };
+export function createDraft({tenantId,product,leadId,language='en',message,actorId,now=new Date().toISOString()}) {
+  requireValue(PRODUCTS.includes(product),400,'Unknown product');
+  requireValue(['en','te','hi'].includes(language),400,'Unsupported language');
+  identifier(tenantId,'tenant'); identifier(leadId,'lead'); identifier(actorId,'actor');
+  return {id:crypto.randomUUID(),tenantId,product,leadId,language,message:validateMessage(message),state:'draft',createdBy:actorId,
+    approvedBy:null,reviewedBy:null,createdAt:now,updatedAt:now,sentAt:null,version:1};
+}
+export function transition(draft,{action,actorId,role,tenantId,message,now=new Date().toISOString()}) {
+  requireValue(draft && STATES.includes(draft.state),400,'Invalid draft');
+  requireValue(tenantId===draft.tenantId,403,'Tenant mismatch'); identifier(actorId,'actor');
+  requireValue(['staff','manager','admin'].includes(role),403,'Insufficient role');
+  if (action==='edit') {
+    requireValue(['draft','rejected','approved'].includes(draft.state),409,'Invalid state transition');
+    requireValue(actorId===draft.createdBy || role==='admin' || role==='manager',403,'Only the owner or manager can edit');
+    return {...draft,message:validateMessage(message),state:'draft',approvedBy:null,reviewedBy:null,updatedAt:now,version:draft.version+1};
+  }
+  const rules = new Map([['submit',[['draft'],'pending_approval']],['approve',[['pending_approval'],'approved']],['reject',[['pending_approval'],'rejected']]]);
+  const rule = rules.get(action);
+  requireValue(rule && rule[0].includes(draft.state),409,'Invalid state transition');
+  if (action==='submit') requireValue(actorId===draft.createdBy || role==='manager' || role==='admin',403,'Only the owner or manager can submit');
+  else requireValue(['manager','admin'].includes(role),403,'Insufficient role');
+  if (action==='approve') requireValue(actorId!==draft.createdBy && actorId!==draft.reviewedBy && actorId!==draft.lastEditedBy,403,'Self-approval prohibited');
+  return {...draft,state:rule[1],updatedAt:now,version:draft.version+1,
+    ...(action==='submit'?{reviewedBy:actorId}:{}),...(action==='approve'?{approvedBy:actorId}:{}),...(action==='reject'?{approvedBy:null}:{})};
 }

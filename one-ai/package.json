@@ -1,9 +1,15 @@
 {
-  "name": "one-ai-master-foundation",
+  "name": "one-ai-master",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
-    "test": "node --test workflow.test.mjs",
-    "check": "node --check workflow.mjs && node --check storage.mjs && node --check adapters.mjs && node --check worker.mjs"
+    "test": "node --test *.test.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "4.150.0"
   }
 }

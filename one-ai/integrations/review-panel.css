@@ -1,0 +1,10 @@
+/* Scoped styles: existing websites and portal themes remain unchanged. */
+.one-ai-panel{font:inherit;color:#102544;background:#fff;border:1px solid #c4a253;border-radius:16px;padding:20px;max-width:800px;box-sizing:border-box}
+.one-ai-panel *{box-sizing:border-box}.one-ai-panel h3{margin:0 0 16px;color:#102544}
+.one-ai-panel select,.one-ai-panel textarea{display:block;width:100%;max-width:100%;font:inherit;background:#fff;color:#102544;border:1px solid #9aabc0;border-radius:8px;padding:10px;margin-bottom:12px}
+.one-ai-panel textarea{min-height:150px;resize:vertical}.one-ai-actions,.one-ai-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.one-ai-panel button{font:inherit;border:1px solid #102544;border-radius:8px;background:#102544;color:#fff;padding:10px 14px;cursor:pointer;min-height:44px}
+.one-ai-panel button:focus-visible,.one-ai-panel textarea:focus-visible,.one-ai-panel select:focus-visible{outline:3px solid #c4a253;outline-offset:3px}
+.one-ai-panel button:disabled{opacity:.6;cursor:wait}.one-ai-list button{background:#fff;color:#102544;text-align:left}
+.one-ai-panel [role=status]{min-height:1.5em;font-weight:600;overflow-wrap:anywhere}
+@media(max-width:480px){.one-ai-panel{padding:14px}.one-ai-actions button{flex:1 1 45%}.one-ai-list button{width:100%}}
