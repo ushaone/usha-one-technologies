@@ -31,7 +31,7 @@ Date: 2026-10-14. Decision: **NO-GO for production**. The existing Supabase proj
 |---|---|
 | Initial existing foundation tests | 3 passed before modification |
 | `npm run check` | Passed JavaScript syntax checks |
-| Engine `npm test` | **24 tests passed**, 0 failed |
+| Engine `npm test` | **28 tests passed**, 0 failed |
 | Neo `node --test integrations/one-ai/worker.test.mjs` | **1 test passed**, 0 failed; multiple ownership/PII cases |
 | SQLite integration/security cases | Passed tenant/product isolation, revoked accounts, role denial, stale update race, failed audit rollback, append-only events, idempotency conflict, payload limits, provider failures and model-input minimization |
 | `npm audit` | 0 known vulnerabilities reported, including installed development dependencies |
@@ -68,5 +68,9 @@ After these gates pass, produce a concrete deployment/rollback plan and request 
 
 - Engine Chromium/core run: https://github.com/ushaone/usha-one-technologies/actions/runs/38505097422 (passed on d1ea33052a2124e6043bbbb62d563a12fda77d5c).
 - Neo connector run: https://github.com/umakanthgilla/neo-school-india-website/actions/runs/38504992397 (passed on e501e3a0d6a43605a84f45d3ba63cc8accd3d0d7).
-- Identity adapters and the verified-schema Supabase connector bring the local suite to 24 passing tests; check latest PR head CI for runtime/browser evidence.
+- Identity adapters and the verified-schema Supabase connector bring the local suite to 28 passing tests; check latest PR head CI for runtime/browser evidence.
 - PRs: https://github.com/ushaone/usha-one-technologies/pull/3 and https://github.com/umakanthgilla/neo-school-india-website/pull/27.
+
+## Prepared legacy Supabase remediation
+
+A CLI-generated migration candidate and four synthetic PostgreSQL tests reproduce and close the profile self-escalation and public aggregate exposure paths, and pin the timestamp trigger search path. See [supabase/README.md](supabase/README.md). No live migration was applied. Browser staff provisioning/role-management consumers and real Supabase staging still need verification.
