@@ -49,3 +49,10 @@ For browser checks, install Playwright and Chromium in the development environme
 Existing websites, logos, SEO branches, school portals, finance and operational Workers are not modified by this work.
 
 The recovered USHA master handoff confirms existing Supabase Auth, a super_admin profile and CRM tables. The existing project was resumed with owner authorization, and its schema/RLS definitions were verified read-only. The implementation reuses Auth and the confirmed lead-to-business relationship. See `integrations/supabase-schema-inspection.sql` for a read-only schema/RLS inventory.
+
+
+## Neo integration hardening (2026-10-17)
+
+Draft creation now enforces Neo admissions eligibility on the server: `Converted` and `Lost` return 409 for both generated and manual new drafts, before model invocation or persistence. This cannot be bypassed by skipping the browser planner. An idempotent retry may still retrieve a previously created draft; it does not create a new draft or send anything. Unknown or missing CRM status is rejected rather than normalized to `New`.
+
+The Neo companion PR is now `umakanthgilla/neo-school-india-website#28`. Its local cross-repository test uses real employee login/session validation, gateway, engine, context connector and separate SQLite databases; only the AI provider is stubbed. Its encoded lead reference regression must pass before staging. Remote Cloudflare acceptance and actual multilingual output review remain required.

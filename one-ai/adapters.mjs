@@ -4,7 +4,8 @@ const statuses = new Set(['New','Contacted','Follow-up','Interested','Visit / Me
 export function leadContext(lead, product) {
   // Deliberately no names, email, phone, notes, DOB, child information or arbitrary free text.
   requireValue(lead && typeof lead === 'object',502,'Invalid CRM response');
-  return {purpose:product==='neo-school-india'?'admissions_follow_up':'business_follow_up',stage:statuses.has(lead.status)?lead.status:'New'};
+  requireValue(statuses.has(lead.status),502,'Unsupported CRM status');
+  return {purpose:product==='neo-school-india'?'admissions_follow_up':'business_follow_up',stage:lead.status};
 }
 export function neoLeadContext(lead) { return leadContext(lead,'neo-school-india'); }
 export function ushaLeadContext(lead) { return leadContext(lead,'usha-one'); }

@@ -104,3 +104,14 @@ test('last editor cannot approve through another reviewer; rejected drafts can b
  assert.equal((await f.req(`/api/drafts/${d.id}/transition`,{action:'reject',version:3},'manager')).status,200);
  assert.equal((await f.req(`/api/drafts/${d.id}/transition`,{action:'edit',version:4,message:'Revised'})).data.state,'draft');
 });
+test('Neo terminal and unknown CRM statuses cannot create drafts by bypassing the planner',async t=>{
+ const f=await fixture(t,'neo-school-india'),fetchContext=f.env.CRM.fetch;
+ for(const [status,expected] of [['Converted',409],['Lost',409],['Closed',502],[null,502]]){
+  f.env.CRM.fetch=async r=>Response.json({...await (await fetchContext(r)).json(),status});
+  assert.equal((await f.create()).status,expected);
+  assert.equal((await f.req('/api/drafts',{leadId:'L1',language:'en',message:'Manual callback draft'})).status,expected);
+ }
+ assert.equal(f.calls,0);
+ assert.equal(f.DB.sqlite.prepare('SELECT count(*) AS n FROM one_ai_drafts').get().n,0);
+ assert.equal(f.DB.sqlite.prepare('SELECT count(*) AS n FROM one_ai_events').get().n,0);
+});

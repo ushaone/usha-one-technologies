@@ -38,6 +38,7 @@ export default {
     const existing=await findRequest(env.DB,actor,key,hash); if(existing)return reply(existing);
     await rateLimit(env.DB,actor,'create',10);
     const context=await fetchLead(env,actor,body.leadId); // Verify ownership even for manually authored drafts.
+    requireValue(env.PRODUCT!=='neo-school-india'||!['Converted','Lost'].includes(context.stage),409,'Admissions lead is closed; no follow-up draft allowed');
     const message=generated?await generateMessage(env,context,body.language):body.message;
     const draft=createDraft({tenantId:actor.tenantId,product:env.PRODUCT,leadId:body.leadId,language:body.language,message,actorId:actor.actorId});
     return reply(await insertDraft(env.DB,draft,{requestKey:key,requestHash:hash,source:generated?'workers-ai':'manual'}),201);
