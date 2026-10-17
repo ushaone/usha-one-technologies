@@ -1,0 +1,23 @@
+# Copy to ignored wrangler.local.toml. Deploy separate instances for USHA and Neo.
+name = "one-ai-usha-staging"
+main = "worker.mjs"
+compatibility_date = "2026-10-13"
+workers_dev = false
+preview_urls = false
+[vars]
+PRODUCT = "usha-one"
+TOKEN_ISSUER = "usha-crm-staging"
+TOKEN_AUDIENCE = "one-ai:usha-one:staging"
+[[d1_databases]]
+binding = "DB"
+database_name = "REPLACE_DEDICATED_ONE_AI_USHA_STAGING"
+database_id = "REPLACE_STAGING_DATABASE_ID"
+migrations_dir = "migrations"
+[ai]
+binding = "AI"
+[[services]]
+binding = "CRM"
+service = "REPLACE_VERIFIED_USHA_STAGING_CONTEXT_SERVICE"
+# Set ONE_AI_TOKEN_SECRET and CRM_TOKEN_SECRET through wrangler secret put.
+# Neo: a separate config, PRODUCT=neo-school-india, Neo-specific issuer/audience,
+# isolated ONE AI Neo D1 and keys, CRM service=neo-one-ai-context-staging.

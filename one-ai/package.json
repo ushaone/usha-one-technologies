@@ -1,0 +1,16 @@
+{
+  "name": "one-ai-master",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test *.test.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.9",
+    "wrangler": "4.150.0"
+  }
+}
