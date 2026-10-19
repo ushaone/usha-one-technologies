@@ -51,6 +51,7 @@ export async function handle(req,env){
  if(!env.ADMIN_TOKEN||env.ADMIN_TOKEN.length<32||!await equal(req.headers.get('authorization')||'','Bearer '+env.ADMIN_TOKEN))return json({error:'Sign in with the administrator access token'},401);
  if(path==='/api/health'&&req.method==='GET')return json({database:readyDB(env),voice:readyVoice(env),mode:env.CALL_MODE||'disabled'});
  if(!readyDB(env))return json({error:'Database is not connected'},503);
+ if(path==='/api/run-now'&&req.method==='POST'){await reconcile(env);return json(await runBatch(env));}
  if(path==='/api/dashboard'&&req.method==='GET'){
   const offset=Math.max(0,Math.min(Number(u.searchParams.get('offset'))||0,1000000));
   const [dues,attempts,settings]=await Promise.all([db(env,'vr_dues?select=*,vr_customers(*)&order=due_date.asc,id.asc&limit=500&offset='+offset),db(env,'vr_attempts?select=*&order=created_at.desc&limit=100'),db(env,'vr_settings?id=eq.true')]);return json({dues,attempts,settings:settings[0],offset,pageSize:500});
