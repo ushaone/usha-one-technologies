@@ -1,0 +1,17 @@
+name = "usha-one-voice-reminders"
+main = "worker.mjs"
+compatibility_date = "2026-10-18"
+[assets]
+directory = "../dist"
+binding = "ASSETS"
+run_worker_first = ["/api/*", "/webhooks/*"]
+[triggers]
+# Every 5 minutes from 09:00 to 17:55 IST. DB enforces the same window.
+crons = ["30-59/5 3 * * *", "*/5 4-11 * * *", "0-25/5 12 * * *"]
+[vars]
+CALL_MODE = "disabled"
+# Set PUBLIC_BASE_URL to this Worker's public HTTPS origin (no path).
+# Set PORTAL_ORIGIN if frontend is hosted on another origin.
+# Set SUPABASE_URL, TWILIO_FROM and TWILIO_VOICE in Worker settings.
+# Store ADMIN_TOKEN (32+ random chars), SUPABASE_SERVICE_ROLE_KEY,
+# TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN using Wrangler secrets.

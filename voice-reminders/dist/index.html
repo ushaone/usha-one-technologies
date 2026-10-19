@@ -1,0 +1,64 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Voice Reminders · USHA ONE Technologies</title><meta name="description" content="A calmer way to manage payment reminders. Import customers, prepare Telugu voice reminders and track every call."><link rel="stylesheet" href="styles.css"></head><body>
+<aside class="sidebar"><a class="brand" href="#overview" aria-label="USHA ONE home"><img src="logo.png" alt="USHA ONE Technologies"></a><div class="workspace">BUSINESS WORKSPACE</div><nav><button class="nav active" data-view="overview"><span>◫</span> Overview</button><button class="nav" data-view="customers"><span>♧</span> Customers & dues</button><button class="nav" data-view="activity"><span>◷</span> Call history</button><button class="nav" data-view="voice"><span>≋</span> Voice & schedule</button></nav><div class="sidebar-bottom"><div class="signal"><i></i> Telugu voice reminders</div><p>Technology built around<br>your business.</p><small>BUILD • AUTOMATE • SCALE</small></div></aside>
+<div class="shell"><header><div class="breadcrumb">Workspace <span>/</span> Voice Reminders</div><button id="connect" class="button subtle">Connect backend <span>↗</span></button></header>
+<main><div id="banner" class="banner"><span><b>Demo workspace</b> &nbsp; Explore with sample data. Changes stay in this browser; no calls are made.</span><button id="reset" class="link">Reset demo</button></div>
+<div class="title-row"><div><div class="eyebrow">USHA ONE / VOICE AUTOMATION</div><h1 id="page-title">Every reminder. Taken care of.</h1><p id="page-subtitle">A clear view of your dues, customers and Telugu voice reminders.</p></div><div class="actions"><button id="add" class="button">＋ Add customer</button><button id="import" class="button primary">↥ Import Excel</button></div></div>
+<section id="overview-top"><div class="stats"><article class="stat"><div>Outstanding dues <span>₹</span></div><strong id="outstanding">₹0</strong><small>Unpaid balance in this view</small></article><article class="stat"><div>Due now <span>↗</span></div><strong id="due-count">0</strong><small>Pending dues · consent recorded</small></article><article class="stat"><div>Completed calls <span>✓</span></div><strong id="completed-count">0</strong><small>Latest 100 attempts · not payment confirmation</small></article><article class="stat"><div>Needs attention <span>!</span></div><strong id="attention-count">0</strong><small>Missed, failed or uncertain calls</small></article></div>
+<div class="hero-grid"><article class="schedule-card"><div class="eyebrow gold">YOUR DAILY FOLLOW-UP, SIMPLIFIED</div><h2>A familiar voice.<br>A timely reminder.</h2><p>Personalized Telugu reminders with each customer’s<br class="desktop"> name, amount and payment due date.</p><div class="schedule-foot"><span class="schedule-icon">◷</span><div><b>Starts at 9:00 AM</b><small>India Standard Time · daily</small></div><span id="schedule-badge" class="badge gold-badge">Paused</span></div><div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+<article class="next-card"><div class="section-label"><h3>Before the next call</h3><span class="badge">3 simple steps</span></div><ol><li><span>01</span><div><b>Add your customer dues</b><small>Upload Excel or enter details manually.</small></div></li><li><span>02</span><div><b>Review the Telugu message</b><small>Personal details fill in automatically.</small></div></li><li><span>03</span><div><b>Connect & enable the schedule</b><small>Paid or paused dues are excluded.</small></div></li></ol><button id="review-voice" class="link">Review voice & schedule <span>→</span></button></article></div></section>
+<section id="customer-panel" class="panel"><div class="panel-head"><div><h2>Customer dues</h2><p>Keep your follow-ups focused and your records up to date.</p></div><button id="export" class="button subtle">↓ Export CSV</button></div><div class="toolbar"><div id="filters" class="tabs"><button class="selected" data-filter="all">All dues</button><button data-filter="due">Due now</button><button data-filter="paid">Paid</button><button data-filter="paused">Paused</button></div><input id="search" type="search" placeholder="Search name, phone or reference…" aria-label="Search customers"></div><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Reference</th><th>Amount due</th><th>Due date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="table-foot"><span id="row-count"></span><div><button id="prev" class="link" hidden>← Previous</button> <button id="next" class="link" hidden>Next page →</button> <span>All dates in IST</span></div></div></section>
+<section id="activity-panel" class="panel" hidden><div class="panel-head"><div><h2>Call history</h2><p>Latest 100 attempts. Completed calls do not confirm payment.</p></div><button id="refresh" class="button">↻ Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Customer / due</th><th>Time (IST)</th><th>Call status</th><th>Call reference</th></tr></thead><tbody id="logs"></tbody></table></div></section>
+<section id="voice-panel" hidden><div class="voice-grid"><article class="panel pad"><div class="eyebrow">TELUGU MESSAGE</div><h2>Your reminder, in your words.</h2><form id="voice-form"><label>Business name<input name="business_name" maxlength="100" required></label><label>Message template<textarea name="template" rows="7" maxlength="1500" required></textarea></label><div class="tokens">{name} &nbsp; {business} &nbsp; {amount} &nbsp; {due_date}</div><button class="button primary">Save message</button></form></article><article class="panel pad"><div class="eyebrow">PERSONALIZED PREVIEW</div><h2>What your customer hears</h2><p id="voice-preview" class="telugu"></p><button id="listen" class="button">▷ Preview on this device</button><p class="fine">Uses your device’s Telugu voice when available. Twilio pronunciation must be tested before launch.</p><hr><h3>Daily calling schedule</h3><p>9:00 AM–6:00 PM IST. Up to 10 reminders per batch, one attempt per due per day, and 3 attempts maximum.</p><button id="pause-schedule" class="button">Enable schedule</button> <button id="run-now" class="button primary" type="button">▶ Run now</button><p id="run-result" class="fine" role="status"></p><p class="fine">Uncertain attempts stop for review. Already dispatched calls may still complete after pausing.</p></article></div></section>
+<footer><span>USHA ONE Technologies</span><span>BUILD • AUTOMATE • SCALE</span></footer><div id="toast" role="status" aria-live="polite"></div></main></div>
+<dialog id="entry-dialog"><form id="entry-form"><div class="dialog-head"><div><div class="eyebrow">NEW REMINDER</div><h2>Add a customer due</h2></div><button type="button" class="close" aria-label="Close">×</button></div><div class="form-grid"><label>Customer name<input name="name" required maxlength="120" placeholder="Customer name"></label><label>Mobile number<input name="phone" required placeholder="+91 98765 43210" inputmode="tel"></label><label>Invoice / reference<input name="reference" required maxlength="80" placeholder="INV-2026-001"></label><label>Amount (₹)<input name="amount" type="number" min="0.01" step="0.01" max="999999999" required placeholder="0.00"></label><label>Due date<input name="due_date" type="date" required></label></div><label class="check"><input name="consent" type="checkbox"> Customer has agreed to receive voice reminders.</label><p class="fine">Without consent, the record is saved but no call is scheduled. Existing customer consent is preserved on repeat imports.</p><button class="button primary full">Save customer due</button><p class="form-error" role="alert"></p></form></dialog>
+<dialog id="import-dialog"><div class="dialog-head"><div><div class="eyebrow">BULK IMPORT</div><h2>Your spreadsheet. Due nows.</h2></div><button class="close" aria-label="Close">×</button></div><p>Choose .xlsx or .csv, up to 2 MB and 500 rows. Existing invoice references are skipped.</p><button id="template" class="link">↓ Download CSV template</button><label class="upload">↥<strong>Choose an Excel or CSV file</strong><small>name, phone, reference, amount, due_date, consent</small><input id="file" type="file" accept=".xlsx,.csv"></label><div id="import-summary"></div><div class="table-wrap preview-wrap"><table><thead><tr><th>Row</th><th>Customer</th><th>Reference</th><th>Validation</th></tr></thead><tbody id="import-rows"></tbody></table></div><button id="save-import" class="button primary full" disabled>Import validated rows</button><p class="form-error" role="alert"></p></dialog>
+<dialog id="connect-dialog"><form id="connect-form"><div class="dialog-head"><h2>Connect your backend</h2><button type="button" class="close" aria-label="Close">×</button></div><p>Connect the deployed reminder Worker to use shared database records. Demo records are never uploaded automatically.</p><label>Worker HTTPS origin<input name="url" type="url" required placeholder="https://your-reminder-worker.workers.dev"></label><label>Administrator access token<input name="token" type="password" required minlength="32" autocomplete="off"></label><p class="fine">Token is kept only in memory until this page closes. Use the token configured in your Worker secrets, never a database or Twilio key.</p><button class="button primary full">Connect securely</button><button id="disconnect" type="button" class="button full">Return to demo</button><p class="form-error" role="alert"></p></form></dialog>
+<script src="xlsx.full.min.js"></script><script type="module" src="app.js"></script>
+<script>
+/* Run now: ఇప్పుడే కాల్స్ మొదలుపెట్టే బటన్ */
+(function () {
+  var origin = null, token = null;
+  var form = document.getElementById("connect-form");
+  var btn = document.getElementById("run-now");
+  var out = document.getElementById("run-result");
+
+  // Connect backend నొక్కినప్పుడు ఇచ్చిన చిరునామా, టోకెన్ మెమరీలో మాత్రమే ఉంచుతుంది
+  form.addEventListener("submit", function () {
+    var d = new FormData(form);
+    origin = String(d.get("url") || "").trim().replace(/\/$/, "");
+    token = String(d.get("token") || "").trim();
+  }, true);
+  document.getElementById("disconnect").addEventListener("click", function () {
+    origin = null; token = null; out.textContent = "";
+  });
+
+  btn.addEventListener("click", async function () {
+    if (!origin || !token) {
+      out.textContent = "ముందు పైన 'Connect backend' నొక్కి కనెక్ట్ అవ్వండి.";
+      return;
+    }
+    if (!confirm("ఇప్పుడే కస్టమర్లకు నిజమైన కాల్స్ వెళ్తాయి. కొనసాగాలా?")) return;
+    btn.disabled = true;
+    out.textContent = "కాల్స్ మొదలవుతున్నాయి...";
+    try {
+      var res = await fetch(origin + "/api/run-now", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token }
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok) {
+        out.textContent = "విఫలమైంది: " + (data.error || res.status);
+      } else if (data.reason) {
+        out.textContent = "కాల్స్ వెళ్ళలేదు: " + data.reason;
+      } else {
+        out.textContent = data.sent + " కాల్స్ మొదలయ్యాయి (" + data.claimed + " ఎంపికయ్యాయి). మిగిలినవి ఉంటే మళ్ళీ నొక్కండి.";
+      }
+    } catch (e) {
+      out.textContent = "సర్వర్‌కు కనెక్ట్ కాలేదు. ఇంటర్నెట్ చూసి మళ్ళీ ప్రయత్నించండి.";
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body></html>
